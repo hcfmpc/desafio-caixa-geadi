@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using ControleArquivosGEADI.API.DbContexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
-using ControleArquivosGEADI.API.Entities;
+using AutoMapper;
+using ControleArquivosGEADI.API.Models;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,27 +19,31 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/arquivos", async Task<Results<NoContent, Ok<List<Arquivo>>>>
-    (ControleDbContext controleDbContext, 
+app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>>>>
+    (ControleDbContext controleDbContext,
+    IMapper mapper,
     [FromQuery(Name = "nome")]string? arquivoNome) =>
 {
-    var arquivosEntity = await controleDbContext.Arquivos
-                                                .Where(a => arquivoNome == null || a.Nome.ToLower().Contains(arquivoNome.ToLower()))
-                                                .ToListAsync();
+    var arquivos = await controleDbContext.Arquivos
+                                            .Where(a => arquivoNome == null || a.Nome.ToLower().Contains(arquivoNome.ToLower()))
+                                            .ToListAsync();
 
-    if (arquivosEntity.Count <= 0 || arquivosEntity == null)
+    if (arquivos.Count <= 0 || arquivos == null)
         return TypedResults.NoContent();
     else
-        return TypedResults.Ok(arquivosEntity);
+        return TypedResults.Ok(mapper.Map< IEnumerable < ArquivoDTO >>(arquivos));
     
 });
 
-app.MapGet("/arquivo/{id:int}", async (ControleDbContext controleDbContext, int id) =>
+app.MapGet("/arquivo/{id:int}", async (
+    ControleDbContext controleDbContext, 
+    IMapper mapper,
+    int id) =>
 {
-    return await controleDbContext.Arquivos.FirstOrDefaultAsync(a => a.Id == id);
+    return mapper.Map<ArquivoDTO>(await controleDbContext.Arquivos.FirstOrDefaultAsync(a => a.Id == id));
 });
 
-app.MapGet("/mapearpasta", (string pasta) =>
+app.MapGet("/mapearpasta", async (string pasta) =>
 {
 
     if (!Directory.Exists(pasta))
@@ -51,7 +57,8 @@ app.MapGet("/mapearpasta", (string pasta) =>
                              Name = Path.GetFileName(file),
                              Size = new FileInfo(file).Length,
                              Path = file,
-                             CreationDate = File.GetCreationTime(file)
+                             CreationDate = File.GetCreationTime(file),
+                             ModificationDate = File.GetLastWriteTime(file)
                          });
 
     if (files.Count() == 0)
@@ -59,9 +66,9 @@ app.MapGet("/mapearpasta", (string pasta) =>
         return Results.NotFound("Nenhum arquivo encontrado na pasta");
     }
 
-
-
     return Results.Ok(files);
 });
+
+
 
 app.Run();
