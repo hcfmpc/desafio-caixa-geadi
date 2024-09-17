@@ -1,28 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using ControleArquivosGEADI.API.Entities;
 using ControleArquivosGEADI.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ControleArquivosGEADI.API.DbContexts;
 
-public partial class ControleDboContext : DbContext
+public partial class ControleDboContext(DbContextOptions<ControleDboContext> options) : DbContext(options)
 {
-    public ControleDboContext()
-    {
-    }
+    //public ControleDboContext()
+    //{
+    //}
 
-    public ControleDboContext(DbContextOptions<ControleDboContext> options)
-        : base(options)
-    {
-    }
+    //public ControleDboContext(DbContextOptions<ControleDboContext> options)
+    //    : base(options)
+    //{
+    //}
+
+    //public DbSet<Arquivo> Arquivos { get; set; } = null!;
+    //public DbSet<Lote> Lotes { get; set; } = null!;
 
     public virtual DbSet<Aditb001ControleArquivo> Aditb001ControleArquivos { get; set; }
 
     public virtual DbSet<Aditb002LoteArquivo> Aditb002LoteArquivos { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=DBTeste;User ID=sa;Password=Ge@di2024;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=DBTeste;User ID=sa;Password=Ge@di2024;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

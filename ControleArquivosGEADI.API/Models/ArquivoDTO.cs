@@ -2,11 +2,11 @@
 
 public class ArquivoDTO
 {
-    public string Nome { get; set; }
-    public string Local { get; set; }
-    public long Tamanho { get; set; }
-    public DateTime DataCriacao { get; set; }
-    public DateTime DataModificacao { get; set; }
-    public DateTime DataLog { get; set; }
+    public string NoArquivo { get; set; }
+    public string NoLocal { get; set; }
+    public long QtBytes { get; set; }
+    public DateTime DtCriacao { get; set; }
+    public DateTime DtModificacao { get; set; }
+    public DateTime DtLog { get; set; }
 
 }

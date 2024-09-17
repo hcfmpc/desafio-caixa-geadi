@@ -8,8 +8,8 @@ public class LoteProfile : Profile
 {
     public LoteProfile()
     {
-        CreateMap<Lote, LoteDTO>().ReverseMap();
-        CreateMap<Arquivo, ArquivoDTO>().ReverseMap();
+        CreateMap<Aditb002LoteArquivo, LoteDTO>().ReverseMap();
+        CreateMap<Aditb001ControleArquivo, ArquivoDTO>().ReverseMap();
     }
 }
 

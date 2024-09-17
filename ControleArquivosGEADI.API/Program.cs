@@ -4,12 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
 using ControleArquivosGEADI.API.Models;
-using System.Collections.Generic;
-using ControleArquivosGEADI.API.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ControleDbContext>(
+builder.Services.AddDbContext<ControleDboContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"))
     );
@@ -23,12 +21,12 @@ var app = builder.Build();
 app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>>>>
-    (ControleDbContext controleDbContext,
+    (ControleDboContext controleDboContext,
     IMapper mapper,
     [FromQuery(Name = "nome")]string? arquivoNome) =>
 {
-    var arquivos = await controleDbContext.Arquivos
-                                            .Where(a => arquivoNome == null || a.Nome.ToLower().Contains(arquivoNome.ToLower()))
+    var arquivos = await controleDboContext.Aditb001ControleArquivos
+                                            .Where(a => arquivoNome == null || a.NoArquivo.ToLower().Contains(arquivoNome.ToLower()))
                                             .ToListAsync();
 
     if (arquivos.Count <= 0 || arquivos == null)
@@ -39,23 +37,34 @@ app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>
 });
 
 app.MapGet("/arquivo/{id:int}", async (
-    ControleDbContext controleDbContext, 
+    ControleDboContext controleDboContext, 
     IMapper mapper,
     int id) =>
 {
-    return mapper.Map<ArquivoDTO>(await controleDbContext.Arquivos.FirstOrDefaultAsync(a => a.Id == id));
+    return mapper.Map<ArquivoDTO>(await controleDboContext.Aditb001ControleArquivos.FirstOrDefaultAsync(a => a.NuId == id));
+});
+
+app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
+    (ControleDboContext controleDboContext,
+    IMapper mapper) =>
+{
+    var lotes = await controleDboContext.Aditb002LoteArquivos.ToListAsync();
+
+    if (lotes.Count <= 0 || lotes == null)
+        return TypedResults.NoContent();
+    else
+        return TypedResults.Ok(mapper.Map<IEnumerable<LoteDTO>>(lotes));
+
 });
 
 app.MapGet("/mapearpasta", async (
-    ControleDbContext controleDbContext,
+    ControleDboContext controleDboContext,
     IMapper mapper,
     string pasta) =>
 {
 
     if (!Directory.Exists(pasta))
-    {
         return Results.NotFound("Pasta não encontrada");
-    }
 
     var dataLog = DateTime.Now;
     var arquivos = Directory.GetFiles(pasta)
@@ -71,10 +80,9 @@ app.MapGet("/mapearpasta", async (
 
     if (arquivos.Count() <= 0 || arquivos == null)
         return Results.NotFound("Nenhum arquivo encontrado na pasta");
-    
-    ControleDboContext controleDboContext = new ControleDboContext();
+
     Aditb002LoteArquivo aditb002LoteArquivo = new Aditb002LoteArquivo();
-    
+
     aditb002LoteArquivo.DtCriacao = dataLog;
     aditb002LoteArquivo.QtArquivos = arquivos.Count();
 
@@ -98,8 +106,9 @@ app.MapGet("/mapearpasta", async (
 
     await controleDboContext.SaveChangesAsync();
 
+    var textoResultComId = $"Lote de arquivos criado com sucesso. Id: {aditb002LoteArquivo.NuId}";
 
-    return Results.Ok(aditb002LoteArquivo);
+    return Results.Ok(textoResultComId);
 });
 
 app.Run();
