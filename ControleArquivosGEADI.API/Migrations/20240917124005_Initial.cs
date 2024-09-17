@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace ControleArquivosGEADI.API.Migrations
 {
     /// <inheritdoc />
@@ -48,6 +50,26 @@ namespace ControleArquivosGEADI.API.Migrations
                         principalTable: "aditb002_lote_arquivos",
                         principalColumn: "nu_id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "aditb002_lote_arquivos",
+                columns: new[] { "nu_id", "dt_criacao", "qt_arquivos" },
+                values: new object[,]
+                {
+                    { 1L, new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified), 3 },
+                    { 2L, new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified), 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "aditb001_controle_arquivos",
+                columns: new[] { "nu_id", "dt_criacao", "dt_log", "dt_modificacao", "no_local", "nu_lote_id", "no_arquivo", "qt_bytes" },
+                values: new object[,]
+                {
+                    { 1L, new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified), "/caminho/para/Arquivo1.csv", 1L, "Arquivo1.csv", 1024L },
+                    { 2L, new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified), "/caminho/para/Arquivo2.csv", 1L, "Arquivo2.csv", 2048L },
+                    { 3L, new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified), "/caminho/para/Arquivo3.csv", 1L, "Arquivo3.csv", 3072L },
+                    { 4L, new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified), "/caminho/para/Arquivo4.csv", 2L, "Arquivo4.csv", 4096L }
                 });
 
             migrationBuilder.CreateIndex(

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ControleArquivosGEADI.API.Migrations
 {
     [DbContext(typeof(ControleDbContext))]
-    [Migration("20240917013812_Initial")]
+    [Migration("20240917124005_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -69,6 +69,52 @@ namespace ControleArquivosGEADI.API.Migrations
                     b.HasIndex("LoteId");
 
                     b.ToTable("aditb001_controle_arquivos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            DataCriacao = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataLog = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataModificacao = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Local = "/caminho/para/Arquivo1.csv",
+                            LoteId = 1L,
+                            Nome = "Arquivo1.csv",
+                            Tamanho = 1024L
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            DataCriacao = new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataLog = new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataModificacao = new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Local = "/caminho/para/Arquivo2.csv",
+                            LoteId = 1L,
+                            Nome = "Arquivo2.csv",
+                            Tamanho = 2048L
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            DataCriacao = new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataLog = new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataModificacao = new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Local = "/caminho/para/Arquivo3.csv",
+                            LoteId = 1L,
+                            Nome = "Arquivo3.csv",
+                            Tamanho = 3072L
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            DataCriacao = new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataLog = new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            DataModificacao = new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Local = "/caminho/para/Arquivo4.csv",
+                            LoteId = 2L,
+                            Nome = "Arquivo4.csv",
+                            Tamanho = 4096L
+                        });
                 });
 
             modelBuilder.Entity("ControleArquivosGEADI.API.Entities.Lote", b =>
@@ -91,6 +137,20 @@ namespace ControleArquivosGEADI.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("aditb002_lote_arquivos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            DataCriacao = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            QuantidadeArquivos = 3
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            DataCriacao = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            QuantidadeArquivos = 1
+                        });
                 });
 
             modelBuilder.Entity("ControleArquivosGEADI.API.Entities.Arquivo", b =>
