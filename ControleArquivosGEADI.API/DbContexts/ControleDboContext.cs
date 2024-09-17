@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ControleArquivosGEADI.API.Entities;
-using ControleArquivosGEADI.API.Models;
+﻿using ControleArquivosGEADI.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ControleArquivosGEADI.API.DbContexts;

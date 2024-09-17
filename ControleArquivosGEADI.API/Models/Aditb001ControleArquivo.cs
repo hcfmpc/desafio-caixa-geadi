@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ControleArquivosGEADI.API.Models;
+﻿namespace ControleArquivosGEADI.API.Models;
 
 public partial class Aditb001ControleArquivo
 {

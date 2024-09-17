@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ControleArquivosGEADI.API.Migrations
 {
-    [DbContext(typeof(ControleDbContext))]
+    [DbContext(typeof(ControleDboContext))]
     partial class ControleDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -74,7 +74,7 @@ namespace ControleArquivosGEADI.API.Migrations
                             DataCriacao = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataLog = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataModificacao = new DateTime(2023, 1, 1, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Local = "/caminho/para/Arquivo1.csv",
+                            Local = "c:\\caminho\\para\\Arquivo1.csv",
                             LoteId = 1L,
                             Nome = "Arquivo1.csv",
                             Tamanho = 1024L
@@ -85,7 +85,7 @@ namespace ControleArquivosGEADI.API.Migrations
                             DataCriacao = new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataLog = new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataModificacao = new DateTime(2023, 1, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Local = "/caminho/para/Arquivo2.csv",
+                            Local = "c:\\caminho\\para\\Arquivo2.csv",
                             LoteId = 1L,
                             Nome = "Arquivo2.csv",
                             Tamanho = 2048L
@@ -96,7 +96,7 @@ namespace ControleArquivosGEADI.API.Migrations
                             DataCriacao = new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataLog = new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataModificacao = new DateTime(2023, 1, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Local = "/caminho/para/Arquivo3.csv",
+                            Local = "c:\\caminho\\para\\Arquivo3.csv",
                             LoteId = 1L,
                             Nome = "Arquivo3.csv",
                             Tamanho = 3072L
@@ -107,7 +107,7 @@ namespace ControleArquivosGEADI.API.Migrations
                             DataCriacao = new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataLog = new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
                             DataModificacao = new DateTime(2023, 1, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Local = "/caminho/para/Arquivo4.csv",
+                            Local = "c:\\caminho\\para\\Arquivo4.csv",
                             LoteId = 2L,
                             Nome = "Arquivo4.csv",
                             Tamanho = 4096L
