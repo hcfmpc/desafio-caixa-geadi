@@ -9,6 +9,7 @@ namespace ControleArquivosGEADI.API.Entities
     public class Lote
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("nu_id")]
         public long Id { get; set; }
 
@@ -27,9 +28,8 @@ namespace ControleArquivosGEADI.API.Entities
             Arquivos = new List<Arquivo>();
         }
 
-        public Lote(long id, DateTime dataCriacao, int quantidadeArquivos)
+        public Lote(DateTime dataCriacao, int quantidadeArquivos)
         {
-            Id = id;
             DataCriacao = dataCriacao;
             QuantidadeArquivos = quantidadeArquivos;
             Arquivos = new List<Arquivo>();

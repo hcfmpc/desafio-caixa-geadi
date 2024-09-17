@@ -8,6 +8,7 @@ namespace ControleArquivosGEADI.API.Entities;
 public class Arquivo
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("nu_id")]
     public long Id { get; set; }
     
@@ -42,9 +43,8 @@ public class Arquivo
     public Arquivo() { }
     
     [SetsRequiredMembers]
-    public Arquivo(long id, string nome, string local, long tamanho, DateTime dataModificacao, DateTime dataCriacao, DateTime dataLog, long loteId)
+    public Arquivo(string nome, string local, long tamanho, DateTime dataModificacao, DateTime dataCriacao, DateTime dataLog, long loteId)
     {
-        Id = id;
         Nome = nome;
         Local = local;
         Tamanho = tamanho;
