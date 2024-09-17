@@ -1,9 +1,12 @@
+using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
 using ControleArquivosGEADI.API.DbContexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
 using ControleArquivosGEADI.API.Models;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,7 +60,7 @@ app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
 
 });
 
-app.MapGet("/mapearpasta", async (
+app.MapPost("/mapearpasta", async (
     ControleDboContext controleDboContext,
     IMapper mapper,
     string pasta) =>
@@ -109,6 +112,36 @@ app.MapGet("/mapearpasta", async (
     var textoResultComId = $"Lote de arquivos criado com sucesso. Id: {aditb002LoteArquivo.NuId}";
 
     return Results.Ok(textoResultComId);
+});
+
+app.MapPost("/etlbasemensal", async (
+    [FromServices] ControleDboContext controleDboContext,
+    string pasta) =>
+{
+    if (!Directory.Exists(pasta))
+        return Results.NotFound("Pasta não encontrada");
+
+    var csvFilePath = Path.Combine(pasta, "BASE_MENSAL.csv");
+
+    if (!File.Exists(csvFilePath))
+        return Results.NotFound("Arquivo BASE_MENSAL.csv não encontrado na pasta");
+
+    var csvData = new List<Aditb003BaseMensalEtl>();
+    using (var reader = new StreamReader(csvFilePath))
+    using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+    {
+        Delimiter = ";",
+        HasHeaderRecord = true // Ignorar a primeira linha (cabeçalho)
+    }))
+    {
+        csv.Context.RegisterClassMap<Aditb003BaseMensalEtlMap>();
+        csvData = csv.GetRecords<Aditb003BaseMensalEtl>().ToList();
+    }
+
+    await controleDboContext.Aditb003BaseMensalEtls.AddRangeAsync(csvData);
+    await controleDboContext.SaveChangesAsync();
+
+    return Results.Ok("Dados carregados com sucesso para ETL");
 });
 
 app.Run();
