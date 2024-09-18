@@ -43,12 +43,12 @@ app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>
     
 });
 
-app.MapGet("/arquivo/{id:int}", async (
+app.MapGet("/arquivos/{arquivoId:int}", async (
     ControleDboContext controleDboContext, 
     IMapper mapper,
-    int id) =>
+    int arquivoId) =>
 {
-    return mapper.Map<ArquivoDTO>(await controleDboContext.Aditb001ControleArquivos.FirstOrDefaultAsync(a => a.NuId == id));
+    return mapper.Map<ArquivoDTO>(await controleDboContext.Aditb001ControleArquivos.FirstOrDefaultAsync(a => a.NuId == arquivoId));
 });
 
 app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
@@ -64,19 +64,19 @@ app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
 
 });
 
-app.MapGet("/lote/{id:int}", async Task<Results<NoContent, Ok<LoteDTO>>>
+app.MapGet("/lotes/{loteId:int}", async Task<Results<NoContent, Ok<LoteDTO>>>
     (ControleDboContext controleDboContext,
     IMapper mapper,
-    int id) =>
+    int loteId) =>
 {
-    var lote = await controleDboContext.Aditb002LoteArquivos.FirstOrDefaultAsync(a => a.NuId == id);
+    var lote = await controleDboContext.Aditb002LoteArquivos.FirstOrDefaultAsync(a => a.NuId == loteId);
 
     if (lote == null)
         return TypedResults.NoContent();
     else
         return TypedResults.Ok(mapper.Map<LoteDTO>(lote));
 
-}).WithName("GetLote");
+}).WithName("GetLotes");
 
 app.MapPost("/mapearpasta", async Task<Results<NotFound<string>, CreatedAtRoute<LoteDTO>>>(
     ControleDboContext controleDboContext,
@@ -126,7 +126,7 @@ app.MapPost("/mapearpasta", async Task<Results<NotFound<string>, CreatedAtRoute<
 
     await controleDboContext.SaveChangesAsync();
 
-    return TypedResults.CreatedAtRoute(mapper.Map<LoteDTO>(aditb002LoteArquivo), "GetLote", new { id = aditb002LoteArquivo.NuId });
+    return TypedResults.CreatedAtRoute(mapper.Map<LoteDTO>(aditb002LoteArquivo), "GetLotes", new { loteId = aditb002LoteArquivo.NuId });
 });
 
 app.MapPost("/etlbasemensal", async (
