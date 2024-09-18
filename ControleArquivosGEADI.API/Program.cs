@@ -27,7 +27,12 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Produção temática Elias Jácome - PSI MASTER GEADI - API C# NET8");
 
-app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>>>>
+var arquivosEndpoints = app.MapGroup("/arquivos");
+var arquivosComIdEndpoints = arquivosEndpoints.MapGroup("/{arquivoId:int}");
+var lotesEndpoints = app.MapGroup("/lotes");
+var lotesComIdEndpoints = lotesEndpoints.MapGroup("/{loteId:int}");
+
+arquivosEndpoints.MapGet("", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>>>>
     (ControleDboContext controleDboContext,
     IMapper mapper,
     [FromQuery(Name = "nome")]string? arquivoNome) =>
@@ -43,7 +48,7 @@ app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>
     
 });
 
-app.MapGet("/arquivos/{arquivoId:int}", async (
+arquivosComIdEndpoints.MapGet("", async (
     ControleDboContext controleDboContext, 
     IMapper mapper,
     int arquivoId) =>
@@ -51,7 +56,7 @@ app.MapGet("/arquivos/{arquivoId:int}", async (
     return mapper.Map<ArquivoDTO>(await controleDboContext.Aditb001ControleArquivos.FirstOrDefaultAsync(a => a.NuId == arquivoId));
 });
 
-app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
+lotesEndpoints.MapGet("", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
     (ControleDboContext controleDboContext,
     IMapper mapper) =>
 {
@@ -64,7 +69,7 @@ app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
 
 });
 
-app.MapGet("/lotes/{loteId:int}", async Task<Results<NoContent, Ok<LoteDTO>>>
+lotesComIdEndpoints.MapGet("", async Task<Results<NoContent, Ok<LoteDTO>>>
     (ControleDboContext controleDboContext,
     IMapper mapper,
     int loteId) =>
