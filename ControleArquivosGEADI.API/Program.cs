@@ -76,12 +76,14 @@ app.MapGet("/lote/{id:int}", async Task<Results<NoContent, Ok<LoteDTO>>>
     else
         return TypedResults.Ok(mapper.Map<LoteDTO>(lote));
 
-});
+}).WithName("GetLote");
 
 app.MapPost("/mapearpasta", async (
     ControleDboContext controleDboContext,
     IMapper mapper,
-    string pasta) =>
+    string pasta,
+    LinkGenerator linkGenerator,
+    HttpContext httpContext) =>
 {
 
     if (!Directory.Exists(pasta))
@@ -127,8 +129,13 @@ app.MapPost("/mapearpasta", async (
 
     await controleDboContext.SaveChangesAsync();
 
+    var linkToReturn = linkGenerator.GetUriByName(
+        httpContext,
+        "GetLote",
+        new { id = aditb002LoteArquivo.NuId });
+
     
-    return TypedResults.Created($"https://localhost:5001/lote/{aditb002LoteArquivo.NuId}", mapper.Map<LoteDTO>(aditb002LoteArquivo));
+    return TypedResults.Created(linkToReturn, mapper.Map<LoteDTO>(aditb002LoteArquivo));
 });
 
 app.MapPost("/etlbasemensal", async (
