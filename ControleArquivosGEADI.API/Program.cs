@@ -141,6 +141,8 @@ app.MapPost("/etlbasemensal", async (
     await controleDboContext.Aditb003BaseMensalEtls.AddRangeAsync(csvData);
     await controleDboContext.SaveChangesAsync();
 
+    await controleDboContext.Database.ExecuteSqlRawAsync("EXEC [dbo].[adisp001_executa_update_base_mensal]");
+
     return Results.Ok("Dados carregados com sucesso para ETL");
 });
 
