@@ -78,16 +78,14 @@ app.MapGet("/lote/{id:int}", async Task<Results<NoContent, Ok<LoteDTO>>>
 
 }).WithName("GetLote");
 
-app.MapPost("/mapearpasta", async (
+app.MapPost("/mapearpasta", async Task<Results<NotFound<string>, CreatedAtRoute<LoteDTO>>>(
     ControleDboContext controleDboContext,
     IMapper mapper,
-    string pasta,
-    LinkGenerator linkGenerator,
-    HttpContext httpContext) =>
+    string pasta) =>
 {
 
     if (!Directory.Exists(pasta))
-        return Results.NotFound("Pasta não encontrada");
+        return TypedResults.NotFound<string>("Pasta não encontrada");
 
     var dataLog = DateTime.Now;
     var arquivos = Directory.GetFiles(pasta)
@@ -102,7 +100,7 @@ app.MapPost("/mapearpasta", async (
                          });
 
     if (arquivos.Count() <= 0 || arquivos == null)
-        return Results.NotFound("Nenhum arquivo encontrado na pasta");
+        return TypedResults.NotFound<string>("Nenhum arquivo encontrado na pasta");
 
     Aditb002LoteArquivo aditb002LoteArquivo = new Aditb002LoteArquivo();
 
@@ -123,19 +121,12 @@ app.MapPost("/mapearpasta", async (
         aditb001ControleArquivos.Add(arquivo);
     }
 
-    //controleDboContext.AddRange(aditb001ControleArquivos);
     aditb002LoteArquivo.Aditb001ControleArquivos = new List<Aditb001ControleArquivo>(aditb001ControleArquivos);
     controleDboContext.Add(aditb002LoteArquivo);
 
     await controleDboContext.SaveChangesAsync();
 
-    var linkToReturn = linkGenerator.GetUriByName(
-        httpContext,
-        "GetLote",
-        new { id = aditb002LoteArquivo.NuId });
-
-    
-    return TypedResults.Created(linkToReturn, mapper.Map<LoteDTO>(aditb002LoteArquivo));
+    return TypedResults.CreatedAtRoute(mapper.Map<LoteDTO>(aditb002LoteArquivo), "GetLote", new { id = aditb002LoteArquivo.NuId });
 });
 
 app.MapPost("/etlbasemensal", async (
