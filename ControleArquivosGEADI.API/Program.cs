@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
 using ControleArquivosGEADI.API.Models;
 using System.Globalization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +18,14 @@ builder.Services.AddDbContext<ControleDboContext>(
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 //Criação do aplicativo
 
-app.MapGet("/", () => "Produção temática - PSI MASTER GEADI - API C# NET8");
+app.MapGet("/", () => "Produção temática Elias Jácome - PSI MASTER GEADI - API C# NET8");
 
 app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>>>>
     (ControleDboContext controleDboContext,
@@ -57,6 +61,20 @@ app.MapGet("/lotes", async Task<Results<NoContent, Ok<IEnumerable<LoteDTO>>>>
         return TypedResults.NoContent();
     else
         return TypedResults.Ok(mapper.Map<IEnumerable<LoteDTO>>(lotes));
+
+});
+
+app.MapGet("/lote/{id:int}", async Task<Results<NoContent, Ok<LoteDTO>>>
+    (ControleDboContext controleDboContext,
+    IMapper mapper,
+    int id) =>
+{
+    var lote = await controleDboContext.Aditb002LoteArquivos.FirstOrDefaultAsync(a => a.NuId == id);
+
+    if (lote == null)
+        return TypedResults.NoContent();
+    else
+        return TypedResults.Ok(mapper.Map<LoteDTO>(lote));
 
 });
 
@@ -109,9 +127,8 @@ app.MapPost("/mapearpasta", async (
 
     await controleDboContext.SaveChangesAsync();
 
-    var textoResultComId = $"Lote de arquivos criado com sucesso. Id: {aditb002LoteArquivo.NuId}";
-
-    return Results.Ok(textoResultComId);
+    
+    return TypedResults.Created($"https://localhost:5001/lote/{aditb002LoteArquivo.NuId}", mapper.Map<LoteDTO>(aditb002LoteArquivo));
 });
 
 app.MapPost("/etlbasemensal", async (
@@ -145,5 +162,8 @@ app.MapPost("/etlbasemensal", async (
 
     return Results.Ok("Dados carregados com sucesso para ETL");
 });
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.Run();
