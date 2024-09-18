@@ -21,7 +21,7 @@ var app = builder.Build();
 
 //Criação do aplicativo
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "Produção temática - PSI MASTER GEADI - API C# NET8");
 
 app.MapGet("/arquivos", async Task<Results<NoContent, Ok<IEnumerable<ArquivoDTO>>>>
     (ControleDboContext controleDboContext,
