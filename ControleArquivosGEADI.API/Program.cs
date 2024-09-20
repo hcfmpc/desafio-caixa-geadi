@@ -17,16 +17,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseExceptionHandler(configureApplicationBuilder =>
+if(!app.Environment.IsDevelopment())
 {
-    configureApplicationBuilder.Run(
-    async context =>
+    app.UseExceptionHandler(configureApplicationBuilder =>
     {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ContentType = "text/html";
-        await context.Response.WriteAsync("An unexpected problem happened.");
+        configureApplicationBuilder.Run(
+        async context =>
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            context.Response.ContentType = "text/html";
+            await context.Response.WriteAsync("An unexpected problem happened.");
+        });
     });
-});
+}
 
 app.RegisterArquivosEndpoints();
 app.RegisterLotesEndpoints();
