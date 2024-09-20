@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using System.IO;
 
 namespace ControleArquivosGEADI.API.EndpointHandlers;
 
@@ -78,11 +77,15 @@ public class CapturasHandlers
 
         var csvData = new List<Aditb003BaseMensalEtl>();
         using (var reader = new StreamReader(csvFilePath))
-        using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
-    {
-        Delimiter = ";",
-            HasHeaderRecord = true // Ignorar a primeira linha (cabeçalho)
-        }))
+        using (var csv = new CsvReader(
+                                        reader, 
+                                        new CsvConfiguration(CultureInfo.InvariantCulture)
+                                            {
+                                                Delimiter = ";",
+                                                HasHeaderRecord = true // Ignorar a primeira linha (cabeçalho)
+                                            }
+                                      )
+        )
         {
             csv.Context.RegisterClassMap<Aditb003BaseMensalEtlMap>();
             csvData = csv.GetRecords<Aditb003BaseMensalEtl>().ToList();

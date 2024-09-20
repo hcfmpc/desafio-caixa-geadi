@@ -15,8 +15,8 @@ public static class EndpointRouteBuilderExtensions
     {
         var lotesEndpoints = endpoints.MapGroup("/lotes");
         var lotesComIdEndpoints = lotesEndpoints.MapGroup("/{loteId:int}");
-        lotesEndpoints.MapGet("", LotesHandlers.GetListasAsync);
-        lotesComIdEndpoints.MapGet("", LotesHandlers.GetListasComIdAsync).WithName("GetLotes");
+        lotesEndpoints.MapGet("", LotesHandlers.GetLotesAsync);
+        lotesComIdEndpoints.MapGet("", LotesHandlers.GetLotesComIdAsync).WithName("GetLotes");
         lotesComIdEndpoints.MapPost("", () =>
         {
             throw new NotImplementedException();
