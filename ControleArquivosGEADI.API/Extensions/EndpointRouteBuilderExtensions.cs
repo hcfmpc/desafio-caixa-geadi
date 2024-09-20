@@ -17,6 +17,10 @@ public static class EndpointRouteBuilderExtensions
         var lotesComIdEndpoints = lotesEndpoints.MapGroup("/{loteId:int}");
         lotesEndpoints.MapGet("", LotesHandlers.GetListasAsync);
         lotesComIdEndpoints.MapGet("", LotesHandlers.GetListasComIdAsync).WithName("GetLotes");
+        lotesComIdEndpoints.MapPost("", () =>
+        {
+            throw new NotImplementedException();
+        });
     }
     public static void RegisterCapturasEndpoints(this IEndpointRouteBuilder endpoints)
     {

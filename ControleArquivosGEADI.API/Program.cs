@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ControleArquivosGEADI.API.DbContexts;
-using ControleArquivosGEADI.API.EndpointHandlers;
 using ControleArquivosGEADI.API.Extensions;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +17,16 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//Criação do aplicativo
-
-//app.MapGet("/", () => "Produção temática Elias Jácome - PSI MASTER GEADI - API C# NET8");
+app.UseExceptionHandler(configureApplicationBuilder =>
+{
+    configureApplicationBuilder.Run(
+    async context =>
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "text/html";
+        await context.Response.WriteAsync("An unexpected problem happened.");
+    });
+});
 
 app.RegisterArquivosEndpoints();
 app.RegisterLotesEndpoints();
