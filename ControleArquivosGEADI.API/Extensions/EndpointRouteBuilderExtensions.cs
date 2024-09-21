@@ -1,4 +1,5 @@
-﻿using ControleArquivosGEADI.API.EndpointHandlers;
+﻿using ControleArquivosGEADI.API.EndpointFilters;
+using ControleArquivosGEADI.API.EndpointHandlers;
 namespace ControleArquivosGEADI.API.Extensions;
 
 public static class EndpointRouteBuilderExtensions
@@ -24,7 +25,10 @@ public static class EndpointRouteBuilderExtensions
     }
     public static void RegisterCapturasEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/mapearpasta", CapturasHandlers.PostMapearArquivosAsync);
-        endpoints.MapPost("/etlbasemensal", CapturasHandlers.PostCapturaEtlBaseMensalAsync);
+        endpoints.MapPost("/mapearpasta", CapturasHandlers.PostMapearArquivosAsync)
+            .AddEndpointFilter(new PastasIsLockedFilter(new string[] { "C:\\Windows", "C:\\Program Files", "C:\\Program Files (x86)" }));
+
+        endpoints.MapPost("/etlbasemensal", CapturasHandlers.PostCapturaEtlBaseMensalAsync)
+            .AddEndpointFilter(new PastasIsLockedFilter(new string[] { "C:\\Windows", "C:\\Program Files", "C:\\Program Files (x86)" }));
     }   
 }

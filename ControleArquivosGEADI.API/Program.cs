@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ControleArquivosGEADI.API.DbContexts;
 using ControleArquivosGEADI.API.Extensions;
-using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
