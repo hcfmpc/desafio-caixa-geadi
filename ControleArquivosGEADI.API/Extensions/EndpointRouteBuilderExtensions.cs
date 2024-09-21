@@ -26,9 +26,11 @@ public static class EndpointRouteBuilderExtensions
     public static void RegisterCapturasEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/mapearpasta", CapturasHandlers.PostMapearArquivosAsync)
+            .AddEndpointFilter<ValidateAnnotationFilter>()
             .AddEndpointFilter(new PastasIsLockedFilter(new string[] { "C:\\Windows", "C:\\Program Files", "C:\\Program Files (x86)" }));
 
         endpoints.MapPost("/etlbasemensal", CapturasHandlers.PostCapturaEtlBaseMensalAsync)
+            .AddEndpointFilter<ValidateAnnotationFilter>()
             .AddEndpointFilter(new PastasIsLockedFilter(new string[] { "C:\\Windows", "C:\\Program Files", "C:\\Program Files (x86)" }));
     }   
 }
