@@ -46,7 +46,7 @@ public class CapturasHandlers
         foreach (var item in arquivos)
         {
             Aditb001ControleArquivo arquivo = new Aditb001ControleArquivo();
-        arquivo.NoArquivo = item.Name;
+            arquivo.NoArquivo = item.Name;
             arquivo.NoLocal = item.Local;
             arquivo.QtBytes = item.Tamanho;
             arquivo.DtCriacao = item.DataCriacao;
@@ -55,7 +55,7 @@ public class CapturasHandlers
             aditb001ControleArquivos.Add(arquivo);
         }
 
-    aditb002LoteArquivo.Aditb001ControleArquivos = new List<Aditb001ControleArquivo>(aditb001ControleArquivos);
+        aditb002LoteArquivo.Aditb001ControleArquivos = new List<Aditb001ControleArquivo>(aditb001ControleArquivos);
         controleDboContext.Add(aditb002LoteArquivo);
 
         await controleDboContext.SaveChangesAsync();
