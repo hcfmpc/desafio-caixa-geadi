@@ -12,8 +12,10 @@ builder.Services.AddDbContext<ControleDboContext>(
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
-builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -22,11 +24,14 @@ if(!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 }
 
+if(app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.RegisterArquivosEndpoints();
 app.RegisterLotesEndpoints();
 app.RegisterCapturasEndpoints();
-
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.Run();
