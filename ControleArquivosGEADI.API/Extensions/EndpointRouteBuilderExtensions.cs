@@ -8,8 +8,19 @@ public static class EndpointRouteBuilderExtensions
     {
         var arquivosEndpoints = endpoints.MapGroup("/arquivos");
         var arquivosComIdEndpoints = arquivosEndpoints.MapGroup("/{arquivoId:int}");
-        arquivosEndpoints.MapGet("", ArquivosHandlers.GetArquivosAsync);
-        arquivosComIdEndpoints.MapGet("", ArquivosHandlers.GetArquivosComIdAsync);
+        arquivosEndpoints.MapGet("", ArquivosHandlers.GetArquivosAsync)
+            .WithOpenApi()
+            .WithSummary("Esta rota retorna os arquivos capturados");
+        arquivosComIdEndpoints.MapGet("", ArquivosHandlers.GetArquivosComIdAsync)
+            .WithOpenApi()
+            .WithSummary("Esta rota retorna o arquivo por ID");
+        arquivosComIdEndpoints.MapDelete("", ArquivosHandlers.GetArquivosComIdAsync)
+            .WithOpenApi(operation => {
+                operation.Deprecated = true;
+                return operation;
+            })
+            .WithSummary("Este endpoint está deprecated e será descontinuado na versão 2 desta API")
+            .WithDescription("Por favor utilize outra rota desta API para esta funcionalidade!");
     }
 
     public static void RegisterLotesEndpoints(this IEndpointRouteBuilder endpoints)
