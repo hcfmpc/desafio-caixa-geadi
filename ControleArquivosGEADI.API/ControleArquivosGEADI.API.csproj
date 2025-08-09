@@ -4,9 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.0.001</Version>
-    <AssemblyVersion>1.0.001.0</AssemblyVersion>
-    <FileVersion>1.0.001.0</FileVersion>
+    <Version>1.0.002</Version>
+    <AssemblyVersion>1.0.002.0</AssemblyVersion>
+    <FileVersion>1.0.002.0</FileVersion>
     <AssemblyTitle>Controle de Arquivos GEADI API</AssemblyTitle>
     <Product>ControleArquivosGEADI</Product>
     <Company>CAIXA</Company>
