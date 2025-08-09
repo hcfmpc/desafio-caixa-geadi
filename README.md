@@ -1,6 +1,6 @@
 # ControleArquivosGEADI
 
-**Versão:** 1.0.002
+**Versão:** 1.0.003
 
 API para controle de arquivos do sistema GEADI.
 
