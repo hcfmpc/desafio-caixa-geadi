@@ -1,0 +1,21 @@
+# Template - Substitua este conteúdo pelo seu arquivo docker-compose.yml
+# Este arquivo será usado para subir o ambiente de desenvolvimento com SQL Server
+
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: geadi-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Ge@di2024
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
