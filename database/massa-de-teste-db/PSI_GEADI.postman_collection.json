@@ -1,0 +1,167 @@
+{
+	"info": {
+		"_postman_id": "93860599-d410-4d7a-90dc-2042950f2d7a",
+		"name": "PSI_GEADI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Arquivos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/arquivos",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"arquivos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lotes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/lotes",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"lotes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Arquivos Nome",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/arquivos?nome=csv",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"arquivos"
+					],
+					"query": [
+						{
+							"key": "nome",
+							"value": "csv"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Arquivo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/arquivo/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"arquivo",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mapear arquivos",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/mapearpasta?pasta=C:\\PstExemplo",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"mapearpasta"
+					],
+					"query": [
+						{
+							"key": "pasta",
+							"value": "C:\\PstExemplo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Incluir BASE_MENSAL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/ETLBaseMensal?pasta=C:\\PstExemplo",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"ETLBaseMensal"
+					],
+					"query": [
+						{
+							"key": "pasta",
+							"value": "C:\\PstExemplo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mapear arquivos pasta vazia",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/mapearpasta?pasta=C:\\Pasta Vazia",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"mapearpasta"
+					],
+					"query": [
+						{
+							"key": "pasta",
+							"value": "C:\\Pasta Vazia"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
