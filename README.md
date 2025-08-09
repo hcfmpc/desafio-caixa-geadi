@@ -1,5 +1,7 @@
 # ControleArquivosGEADI
 
+**Versão:** 1.0.001
+
 API para controle de arquivos do sistema GEADI.
 
 ## Estrutura do Projeto
