@@ -6,10 +6,11 @@ Este diretório contém os arquivos necessários para configurar o ambiente de b
 
 ```
 database/
-├── docker-compose.yml           # Configuração do SQL Server
-├── README.md                   # Este arquivo
-└── massa-de-teste-db/          # Massa de teste e scripts
-    ├── BASE_MENSAL.csv         # Dados de teste em formato CSV
+├── docker-compose.yml               # Configuração do SQL Server
+├── GEADICriandoTabelas.sql         # Script SQL para criar tabelas e relacionamentos
+├── README.md                       # Este arquivo
+└── massa-de-teste-db/              # Massa de teste e scripts
+    ├── BASE_MENSAL.csv             # Dados de teste em formato CSV
     ├── import_ETL_BASE_MENSAL.ps1  # Script PowerShell para importação
     └── PSI_GEADI.postman_collection.json  # Collection do Postman para testes
 ```
@@ -20,6 +21,8 @@ database/
 - Docker Compose disponível
 
 ## Como inicializar
+
+### Opção 1: Usando Migrations (Recomendado para desenvolvimento)
 
 1. Navegue até este diretório:
    ```bash
@@ -33,7 +36,29 @@ database/
 
 3. Aguarde alguns segundos para o SQL Server inicializar completamente.
 
-4. Verifique se o container está rodando:
+4. Execute as migrations da aplicação:
+   ```bash
+   cd ../ControleArquivosGEADI.API
+   dotnet ef database update
+   cd ../database
+   ```
+
+### Opção 2: Usando Script SQL direto
+
+1. Suba o container SQL Server:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. Execute o script SQL para criar as tabelas:
+   ```bash
+   # Via linha de comando (sqlcmd deve estar instalado)
+   sqlcmd -S localhost,1433 -U sa -P Ge@di2024 -i GEADICriandoTabelas.sql
+   
+   # OU conecte com Azure Data Studio/SSMS e execute o arquivo GEADICriandoTabelas.sql
+   ```
+
+3. Verifique se o container está rodando:
    ```bash
    docker-compose ps
    ```
@@ -59,14 +84,40 @@ Data Source=localhost;Initial Catalog=DBGEADI;User ID=sa;Password=Ge@di2024;Conn
 - **Ver logs:** `docker-compose logs -f sqlserver`
 - **Remover completamente:** `docker-compose down -v` (remove dados!)
 
+## Estrutura do Banco de Dados
+
+O arquivo `GEADICriandoTabelas.sql` contém:
+
+### 📋 **Tabelas Criadas:**
+- **`aditb001_controle_arquivos`** - Controle de arquivos do sistema
+- **`aditb002_lote_arquivos`** - Lotes de processamento de arquivos  
+- **`aditb003_base_mensal_ETL`** - Base mensal para ETL com dados detalhados
+
+### 🔗 **Relacionamentos:**
+- **FK:** `aditb001_controle_arquivos.nu_lote_id` → `aditb002_lote_arquivos.nu_id`
+- **Cascade Delete:** Exclusão de lote remove arquivos relacionados
+
+### 🎯 **Funcionalidades:**
+- ✅ Criação automática do banco `DBGEADI`
+- ✅ Estrutura completa de tabelas
+- ✅ Constraints e índices otimizados
+- ✅ Foreign keys com integridade referencial
+
 ## Migrations
 
-Após subir o banco, execute as migrations da aplicação:
+## Migrations vs Script SQL
 
-```bash
-cd ../ControleArquivosGEADI.API
-dotnet ef database update
-```
+### 🔄 **Entity Framework Migrations (Recomendado)**
+- Mantém sincronia com os models da aplicação
+- Controle de versão das mudanças de schema
+- Executar: `dotnet ef database update`
+
+### 📜 **Script SQL direto (GEADICriandoTabelas.sql)**
+- Criação rápida para ambiente de teste
+- Schema já pronto sem dependência do .NET
+- Útil para DBAs ou configuração manual
+
+**Importante:** Use APENAS uma das opções. Se usar o script SQL, não execute migrations depois.
 
 ## Massa de Teste
 

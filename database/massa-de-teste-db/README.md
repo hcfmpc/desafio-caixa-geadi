@@ -28,10 +28,15 @@ Esta pasta contém dados e scripts para popular o banco de dados com informaçõ
 # Na pasta database
 docker-compose up -d
 
-# Aplicar migrations
+# Opção A: Aplicar migrations (desenvolvimento)
 cd ../ControleArquivosGEADI.API
 dotnet ef database update
 cd ../database/massa-de-teste-db
+
+# Opção B: Usar script SQL direto (teste rápido)
+cd ../database
+sqlcmd -S localhost,1433 -U sa -P Ge@di2024 -i GEADICriandoTabelas.sql
+cd massa-de-teste-db
 ```
 
 ### 2. Importar dados
