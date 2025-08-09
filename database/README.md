@@ -2,6 +2,18 @@
 
 Este diretório contém os arquivos necessários para configurar o ambiente de banco de dados para desenvolvimento e testes da aplicação ControleArquivosGEADI.
 
+## Estrutura
+
+```
+database/
+├── docker-compose.yml           # Configuração do SQL Server
+├── README.md                   # Este arquivo
+└── massa-de-teste-db/          # Massa de teste e scripts
+    ├── BASE_MENSAL.csv         # Dados de teste em formato CSV
+    ├── import_ETL_BASE_MENSAL.ps1  # Script PowerShell para importação
+    └── PSI_GEADI.postman_collection.json  # Collection do Postman para testes
+```
+
 ## Pré-requisitos
 
 - Docker Desktop instalado
@@ -55,6 +67,47 @@ Após subir o banco, execute as migrations da aplicação:
 cd ../ControleArquivosGEADI.API
 dotnet ef database update
 ```
+
+## Massa de Teste
+
+A pasta `massa-de-teste-db/` contém arquivos para popular o banco com dados de teste:
+
+### Arquivos Disponíveis:
+
+- **`BASE_MENSAL.csv`** - Dados de teste em formato CSV
+- **`import_ETL_BASE_MENSAL.ps1`** - Script PowerShell para importar os dados
+- **`PSI_GEADI.postman_collection.json`** - Collection do Postman para testar a API
+
+### Como usar a massa de teste:
+
+1. **Certifique-se que o banco está rodando:**
+   ```bash
+   docker-compose ps
+   ```
+
+2. **Execute as migrations primeiro:**
+   ```bash
+   cd ../ControleArquivosGEADI.API
+   dotnet ef database update
+   cd ../database
+   ```
+
+3. **Execute o script PowerShell para importar dados:**
+   ```powershell
+   cd massa-de-teste-db
+   .\import_ETL_BASE_MENSAL.ps1
+   ```
+
+4. **Para testar a API, importe a collection no Postman:**
+   - Abra o Postman
+   - Importe o arquivo `PSI_GEADI.postman_collection.json`
+   - Execute os requests para validar os dados
+
+### Dicas:
+
+- **Resetar dados:** Se precisar limpar e reimportar os dados, execute novamente o script PowerShell
+- **Validação:** Use a collection do Postman para verificar se os dados foram importados corretamente
+- **Logs:** Em caso de erro na importação, verifique os logs do container SQL Server com `docker-compose logs -f sqlserver`
 
 ## Observações
 
