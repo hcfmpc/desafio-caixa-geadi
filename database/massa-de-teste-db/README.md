@@ -1,56 +1,70 @@
 # Massa de Teste - GEADI
 
-Esta pasta contém dados e scripts para popular o banco de dados com informações de teste.
+Esta pasta contém dados de exemplo para popul- **Reset:** Para reimportar, limpe a tabela primeiro ou recrie o bancos com informações de teste.
 
-## Arquivos
+## 📁 Arquivos
 
 ### 📄 `BASE_MENSAL.csv`
-- **Descrição:** Dados de teste da base mensal ETL
-- **Formato:** CSV com separador de vírgula
-- **Uso:** Dados para importação no banco de testes
+- **Descrição:** Dados de exemplo da base mensal ETL (100+ registros)
+- **Formato:** CSV com separador `;` (ponto e vírgula)
+- **Uso:** Importação via API endpoint ETL ou script manual
 
-### 🔧 `import_ETL_BASE_MENSAL.ps1`
-- **Descrição:** Script PowerShell para importar os dados CSV no banco
-- **Pré-requisitos:** 
-  - PowerShell 5.1 ou superior
-  - SQL Server rodando (via docker-compose)
-  - Migrations aplicadas no banco
+## � Como Importar os Dados
 
-### 📮 `PSI_GEADI.postman_collection.json`
-- **Descrição:** Collection do Postman com requests para testar a API
-- **Inclui:** Endpoints para validar os dados importados
-- **Como usar:** Importe no Postman e execute os requests
+### **Método Recomendado: Via API**
 
-## Como executar
+1. **Inicie o ambiente completo:**
+   ```bash
+   # Na raiz do projeto
+   docker-compose up
+   ```
 
-### 1. Preparar o ambiente
+2. **Aguarde a API ficar disponível** (http://localhost:8080)
+
+3. **Faça uma requisição POST para o endpoint ETL:**
+   ```http
+   POST http://localhost:8080/capturasEtlBaseMensal?pasta=C:\LocalGit\Caixa\desafio-caixa-geadi\database\massa-de-teste-db
+   ```
+
+## 🧪 Testando a Importação
+
+### **Via Postman**
+1. **Importe a collection:** `../script-manual/PSI_GEADI.postman_collection.json`
+2. **Configure o ambiente:** `http://localhost:8080`
+3. **Execute o request ETL** para importar os dados
+
+### **Via curl**
 ```bash
-# Na pasta database
-docker-compose up -d
-
-# Opção A: Aplicar migrations (desenvolvimento)
-cd ../ControleArquivosGEADI.API
-dotnet ef database update
-cd ../database/massa-de-teste-db
-
-# Opção B: Usar script SQL direto (teste rápido)
-cd ../database
-sqlcmd -S localhost,1433 -U sa -P Ge@di2024 -i GEADICriandoTabelas.sql
-cd massa-de-teste-db
+curl -X POST "http://localhost:8080/capturasEtlBaseMensal?pasta=C:\LocalGit\Caixa\desafio-caixa-geadi\database\massa-de-teste-db"
 ```
 
-### 2. Importar dados
-```powershell
-# Execute o script PowerShell
-.\import_ETL_BASE_MENSAL.ps1
-```
+## 📊 Estrutura dos Dados
 
-### 3. Validar com Postman
-1. Abra o Postman
-2. Importe `PSI_GEADI.postman_collection.json`
-3. Execute os requests para validar
+O arquivo `BASE_MENSAL.csv` contém registros com as seguintes colunas:
+- **am_honrado**: Valor honrado
+- **base_calculo**: Base de cálculo
+- **cart**: Carteira
+- **co_ag_relac**: Código agência relacionada
+- **co_cart**: Código carteira
+- **co_mod**: Código modalidade
+- **cpf_cnpj**: CPF/CNPJ do cliente
+- **dt_mov**: Data movimento
+- **vlr_conce**: Valor concedido
+- E outros campos específicos do domínio
 
-## Estrutura dos Dados
+## ✅ Validação
+
+Após a importação, você pode verificar:
+1. **Quantidade de registros:** Endpoint para contar registros na tabela
+2. **Dados específicos:** Queries para validar integridade
+3. **Performance:** Tempo de importação e consulta
+
+## ⚠️ Notas Importantes
+
+- **Ambiente recomendado:** Use sempre a API para importação em desenvolvimento
+- **Script PowerShell:** Apenas para testes manuais isolados do banco
+- **Dados de exemplo:** Não são dados reais, apenas para validação da estrutura
+- **Reset:** Para reimportar, limpe a tabela primeiro ou recrie o banco
 
 O arquivo CSV contém dados da tabela `ADITB003_BASE_MENSAL_ETL` com campos como:
 - Informações de controle de arquivos

@@ -11,12 +11,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/arquivos",
-					"protocol": "https",
+					"raw": "http://localhost:8080/arquivos",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"arquivos"
 					]
@@ -30,12 +30,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/lotes",
-					"protocol": "https",
+					"raw": "http://localhost:8080/lotes",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"lotes"
 					]
@@ -49,12 +49,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/arquivos?nome=csv",
-					"protocol": "https",
+					"raw": "http://localhost:8080/arquivos?nome=csv",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"arquivos"
 					],
@@ -74,12 +74,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/arquivo/1",
-					"protocol": "https",
+					"raw": "http://localhost:8080/arquivo/1",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"arquivo",
 						"1"
@@ -89,17 +89,17 @@
 			"response": []
 		},
 		{
-			"name": "Mapear arquivos",
+			"name": "Mapear Pasta (Com dados de teste)",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/mapearpasta?pasta=C:\\PstExemplo",
-					"protocol": "https",
+					"raw": "http://localhost:8080/mapearpasta?pasta=C:\\PstExemplo",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"mapearpasta"
 					],
@@ -114,17 +114,17 @@
 			"response": []
 		},
 		{
-			"name": "Incluir BASE_MENSAL",
+			"name": "ETL Base Mensal (Importar CSV)",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/ETLBaseMensal?pasta=C:\\PstExemplo",
-					"protocol": "https",
+					"raw": "http://localhost:8080/ETLBaseMensal?pasta=C:\\PstExemplo",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"ETLBaseMensal"
 					],
@@ -139,17 +139,17 @@
 			"response": []
 		},
 		{
-			"name": "Mapear arquivos pasta vazia",
+			"name": "Mapear Pasta (Vazia - Teste de erro)",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:5001/mapearpasta?pasta=C:\\Pasta Vazia",
-					"protocol": "https",
+					"raw": "http://localhost:8080/mapearpasta?pasta=C:\\Pasta Vazia",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "5001",
+					"port": "8080",
 					"path": [
 						"mapearpasta"
 					],

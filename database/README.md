@@ -1,92 +1,90 @@
 # Banco de Dados - Ambiente de Desenvolvimento
 
-Este diretório contém os arquivos necessários para configurar o ambiente de banco de dados para desenvolvimento e testes da aplicação ControleArquivosGEADI.
+Este diretório contém os arquivos e scripts necessários para configurar e testar o ambiente de banco de dados da aplicação ControleArquivosGEADI.
 
-## Estrutura
+## 📁 Estrutura
 
 ```
 database/
-├── docker-compose.yml               # Configuração do SQL Server
-├── GEADICriandoTabelas.sql         # Script SQL para criar tabelas e relacionamentos
-├── README.md                       # Este arquivo
-└── massa-de-teste-db/              # Massa de teste e scripts
-    ├── BASE_MENSAL.csv             # Dados de teste em formato CSV
-    ├── import_ETL_BASE_MENSAL.ps1  # Script PowerShell para importação
-    └── PSI_GEADI.postman_collection.json  # Collection do Postman para testes
+├── README.md                       # Este arquivo (documentação)
+├── script-manual/                  # Scripts para ambiente de teste manual
+│   ├── docker-compose.yml          # SQL Server standalone para testes
+│   ├── GEADICriandoTabelas.sql     # Script SQL para criar tabelas
+│   ├── import_ETL_BASE_MENSAL.ps1  # Script PowerShell para importação manual
+│   └── PSI_GEADI.postman_collection.json  # Collection do Postman
+└── massa-de-teste-db/              # Dados de teste
+    ├── BASE_MENSAL.csv             # Arquivo CSV com dados de exemplo
+    └── README.md                   # Instruções específicas da massa de teste
 ```
 
-## Pré-requisitos
+## 🎯 Objetivo
 
+Este diretório oferece **duas abordagens** para trabalhar com o banco de dados:
+
+### 1. **Ambiente de Produção/Desenvolvimento (Recomendado)**
+- Use o **docker-compose.yml principal** na raiz do projeto
+- Executa automaticamente API + SQL Server integrados
+- Utiliza Entity Framework Migrations
+- **Comando:** `docker-compose up` (na raiz do projeto)
+
+### 2. **Ambiente de Teste Manual (scripts nesta pasta)**
+- Use os arquivos da pasta `script-manual/`
+- SQL Server standalone para testes isolados
+- Scripts SQL manuais para criação de estrutura
+- **Comando:** `docker-compose up` (dentro da pasta `script-manual/`)
+
+## 🔧 Configuração para Teste Manual
+
+Se você quiser apenas testar o banco de dados **sem a API**, siga os passos:
+
+### Pré-requisitos
 - Docker Desktop instalado
-- Docker Compose disponível
+- PowerShell (para scripts de importação)
 
-## Como inicializar
+### Passos
 
-### Opção 1: Usando Migrations (Recomendado para desenvolvimento)
-
-1. Navegue até este diretório:
+1. **Navegue para a pasta de scripts manuais:**
    ```bash
-   cd database
+   cd database/script-manual
    ```
 
-2. Execute o comando para subir o container:
+2. **Suba apenas o SQL Server:**
    ```bash
    docker-compose up -d
    ```
 
-3. Aguarde alguns segundos para o SQL Server inicializar completamente.
+3. **Aguarde o SQL Server inicializar** (30-60 segundos)
 
-4. Execute as migrations da aplicação:
+4. **Execute o script SQL para criar as tabelas:**
    ```bash
-   cd ../ControleArquivosGEADI.API
-   dotnet ef database update
-   cd ../database
-   ```
-
-### Opção 2: Usando Script SQL direto
-
-1. Suba o container SQL Server:
-   ```bash
-   docker-compose up -d
-   ```
-
-2. Execute o script SQL para criar as tabelas:
-   ```bash
-   # Via linha de comando (sqlcmd deve estar instalado)
+   # Via sqlcmd (se instalado)
    sqlcmd -S localhost,1433 -U sa -P Ge@di2024 -i GEADICriandoTabelas.sql
    
-   # OU conecte com Azure Data Studio/SSMS e execute o arquivo GEADICriandoTabelas.sql
+   # OU conecte com Azure Data Studio/SSMS e execute o arquivo
    ```
 
-3. Verifique se o container está rodando:
-   ```bash
-   docker-compose ps
+5. **[OPCIONAL] Importe dados de teste:**
+   ```powershell
+   # Importação manual via PowerShell
+   .\import_ETL_BASE_MENSAL.ps1
    ```
 
-## Configurações
+## ⚙️ Configurações do Ambiente Manual
 
 - **Servidor:** localhost,1433
-- **Usuário:** sa
-- **Senha:** Ge@di2024 (definida no docker-compose.yml)
+- **Usuário:** sa  
+- **Senha:** Ge@di2024
 - **Database:** DBGEADI
 - **Porta:** 1433
 
-## String de Conexão
-
+### String de Conexão
 ```
 Data Source=localhost;Initial Catalog=DBGEADI;User ID=sa;Password=Ge@di2024;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False
 ```
 
-## Comandos Úteis
+## 🗄️ Estrutura do Banco de Dados
 
-- **Parar o container:** `docker-compose down`
-- **Reiniciar:** `docker-compose restart`
-- **Ver logs:** `docker-compose logs -f sqlserver`
-- **Remover completamente:** `docker-compose down -v` (remove dados!)
-
-## Estrutura do Banco de Dados
-
-O arquivo `GEADICriandoTabelas.sql` contém:
+O arquivo `script-manual/GEADICriandoTabelas.sql` contém:
 
 ### 📋 **Tabelas Criadas:**
 - **`aditb001_controle_arquivos`** - Controle de arquivos do sistema
@@ -103,65 +101,104 @@ O arquivo `GEADICriandoTabelas.sql` contém:
 - ✅ Constraints e índices otimizados
 - ✅ Foreign keys com integridade referencial
 
-## Migrations
+## 🔄 Abordagens de Criação do Schema
 
-## Migrations vs Script SQL
-
-### 🔄 **Entity Framework Migrations (Recomendado)**
+### **Entity Framework Migrations (Ambiente Integrado)**
 - Mantém sincronia com os models da aplicação
 - Controle de versão das mudanças de schema
-- Executar: `dotnet ef database update`
+- Usado no ambiente principal (docker-compose na raiz)
+- **Executar:** `dotnet ef database update`
 
-### 📜 **Script SQL direto (GEADICriandoTabelas.sql)**
-- Criação rápida para ambiente de teste
-- Schema já pronto sem dependência do .NET
+### **Script SQL Direto (Testes Manuais)**
+- Criação rápida para ambiente de teste isolado
+- Schema pronto sem dependência do .NET
 - Útil para DBAs ou configuração manual
+- **Localização:** `script-manual/GEADICriandoTabelas.sql`
 
-**Importante:** Use APENAS uma das opções. Se usar o script SQL, não execute migrations depois.
+**⚠️ Importante:** Use APENAS uma das opções por ambiente.
 
-## Massa de Teste
+## 📊 Massa de Teste
 
-A pasta `massa-de-teste-db/` contém arquivos para popular o banco com dados de teste:
+A pasta `massa-de-teste-db/` contém dados para popular o banco:
 
 ### Arquivos Disponíveis:
+- **`BASE_MENSAL.csv`** - Dados de exemplo (100+ registros)
+- **README.md** - Instruções específicas
 
-- **`BASE_MENSAL.csv`** - Dados de teste em formato CSV
-- **`import_ETL_BASE_MENSAL.ps1`** - Script PowerShell para importar os dados
-- **`PSI_GEADI.postman_collection.json`** - Collection do Postman para testar a API
+### 💡 Como Importar Dados
 
-### Como usar a massa de teste:
-
-1. **Certifique-se que o banco está rodando:**
+#### **Opção 1: Via API (Recomendado)**
+1. **Suba o ambiente completo:**
    ```bash
-   docker-compose ps
+   # Na raiz do projeto
+   docker-compose up
    ```
 
-2. **Execute as migrations primeiro:**
-   ```bash
-   cd ../ControleArquivosGEADI.API
-   dotnet ef database update
-   cd ../database
+2. **Use o endpoint ETL da API:**
+   ```http
+   POST http://localhost:8080/capturasEtlBaseMensal?pasta=C:\LocalGit\Caixa\desafio-caixa-geadi\database\massa-de-teste-db
    ```
 
-3. **Execute o script PowerShell para importar dados:**
+#### **Opção 2: Via Script PowerShell (Manual)**
+1. **Para ambiente de teste manual apenas:**
+   ```bash
+   cd database/script-manual
+   docker-compose up -d
+   # Execute o script SQL para criar tabelas
+   ```
+
+2. **Execute o script PowerShell:**
    ```powershell
-   cd massa-de-teste-db
+   cd ../massa-de-teste-db
    .\import_ETL_BASE_MENSAL.ps1
    ```
 
-4. **Para testar a API, importe a collection no Postman:**
-   - Abra o Postman
-   - Importe o arquivo `PSI_GEADI.postman_collection.json`
-   - Execute os requests para validar os dados
+## 🧪 Testes com Postman
 
-### Dicas:
+- **Collection:** `script-manual/PSI_GEADI.postman_collection.json`
+- **Como usar:**
+  1. Importe no Postman
+  2. Configure o ambiente para `http://localhost:8080` (API integrada)
+  3. Execute os requests para validar
 
-- **Resetar dados:** Se precisar limpar e reimportar os dados, execute novamente o script PowerShell
-- **Validação:** Use a collection do Postman para verificar se os dados foram importados corretamente
-- **Logs:** Em caso de erro na importação, verifique os logs do container SQL Server com `docker-compose logs -f sqlserver`
+## 🛠️ Comandos Úteis
 
-## Observações
+### Ambiente Manual (script-manual/)
+```bash
+# Iniciar apenas SQL Server
+cd database/script-manual && docker-compose up -d
 
-- Os dados são persistidos em um volume Docker (`sqlserver_data`)
-- Para resetar completamente, use `docker-compose down -v` e depois `docker-compose up -d`
-- Este ambiente é apenas para desenvolvimento/testes locais
+# Parar
+docker-compose down
+
+# Ver logs
+docker-compose logs -f sqlserver
+
+# Resetar dados (cuidado!)
+docker-compose down -v
+```
+
+### Ambiente Integrado (raiz do projeto)  
+```bash
+# Iniciar API + SQL Server
+docker-compose up
+
+# Parar tudo
+docker-compose down
+
+# Rebuild se houver mudanças
+docker-compose up --build
+```
+
+## 📝 Observações Importantes
+
+- **Dados persistentes:** Volumes Docker mantêm dados entre reinicializações
+- **Resetar completamente:** Use `docker-compose down -v` + `docker-compose up -d`
+- **Ambiente de desenvolvimento:** Configure a API para usar a **rota ETL** para importar dados
+- **Scripts manuais:** Apenas para testes isolados do banco de dados
+
+## 🚀 Próximos Passos
+
+1. **Para desenvolvimento:** Use o docker-compose na raiz do projeto
+2. **Para testar apenas DB:** Use os scripts em `script-manual/`
+3. **Para dados de teste:** Prefira a API com endpoint ETL ao invés do script PowerShell
