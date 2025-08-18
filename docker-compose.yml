@@ -37,7 +37,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "C:/LocalGit/Caixa:/app/data"
+      - "${PROJECT_ROOT:-C:/LocalGit/Caixa/desafio-caixa-geadi}:/app/data"
     depends_on:
       sqlserver:
         condition: service_healthy

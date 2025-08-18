@@ -23,12 +23,18 @@ git clone https://github.com/hcfmpc/desafio-caixa-geadi.git
 cd desafio-caixa-geadi
 ```
 
-### 2. Verificar dependências
+### 2. Configurar ambiente (automático)
+```powershell
+# Detecta automaticamente o caminho do projeto
+.\Scripts\setup-env.ps1
+```
+
+### 3. Verificar dependências
 ```powershell
 .\Scripts\verify.ps1
 ```
 
-### 3. Iniciar aplicação
+### 4. Iniciar aplicação
 ```powershell
 # Subir containers (API + Banco)
 docker-compose up -d
@@ -43,7 +49,7 @@ dotnet ef database update
 cd ..
 ```
 
-### 4. Acessar aplicação
+### 5. Acessar aplicação
 - **API**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger
 - **SQL Server**: localhost:1433 (sa/Ge@di2024)
@@ -86,6 +92,36 @@ dotnet run --project ControleArquivosGEADI.API
 # Para usuários que preferem controle manual
 docker-compose up -d
 # Nota: SQL Server pode demorar 60+ segundos para inicializar
+```
+
+## 🔧 Configuração Personalizada
+
+### Configuração Automática (Recomendado)
+O script `setup-env.ps1` detecta automaticamente o caminho do projeto e configura o ambiente.
+
+### Configuração Manual
+Caso precise ajustar manualmente:
+
+1. **Copie o arquivo de exemplo:**
+```powershell
+cp .env.example .env
+```
+
+2. **Edite o arquivo `.env`:**
+```bash
+# Ajuste o caminho para sua máquina
+PROJECT_ROOT=C:/SeuCaminho/desafio-caixa-geadi
+```
+
+3. **Exemplos de caminhos:**
+```bash
+# Windows
+PROJECT_ROOT=C:/Users/SeuUsuario/projetos/desafio-caixa-geadi
+PROJECT_ROOT=D:/desenvolvimento/caixa/desafio-caixa-geadi
+
+# Linux/Mac  
+PROJECT_ROOT=/home/usuario/projetos/desafio-caixa-geadi
+PROJECT_ROOT=/Users/usuario/desenvolvimento/desafio-caixa-geadi
 ```
 
 ## 🛠️ Desenvolvimento Local

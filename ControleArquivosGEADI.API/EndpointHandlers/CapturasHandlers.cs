@@ -110,7 +110,7 @@ public class CapturasHandlers
     /// <summary>
     /// Normaliza o caminho baseado no ambiente de execução
     /// </summary>
-    /// <param name="pasta">Caminho informado pelo usuário (sempre no formato C:\)</param>
+    /// <param name="pasta">Caminho informado pelo usuário</param>
     /// <returns>Caminho normalizado para o ambiente atual</returns>
     private static string NormalizarCaminho(string pasta)
     {
@@ -120,30 +120,94 @@ public class CapturasHandlers
 
         if (isDocker)
         {
-            // Ambiente Docker - converter C:\LocalGit\Caixa\... para /app/data/...
-            if (pasta.StartsWith("C:\\LocalGit\\Caixa\\", StringComparison.OrdinalIgnoreCase))
+            // Em Docker, assumir que a pasta do projeto está mapeada para /app/data
+            // Se o caminho for relativo ou absoluto Windows, converter para Linux
+            if (Path.IsPathRooted(pasta) && pasta.Contains("\\"))
             {
-                // Remove "C:\LocalGit\Caixa\" e substitui por "/app/data/"
-                var relativePath = pasta.Substring("C:\\LocalGit\\Caixa\\".Length);
-                var linuxPath = relativePath.Replace('\\', '/');
-                return $"/app/data/{linuxPath}";
-            }
-            else if (pasta.StartsWith("C:\\LocalGit\\Caixa", StringComparison.OrdinalIgnoreCase))
-            {
-                // Se for exatamente "C:\LocalGit\Caixa"
-                return "/app/data";
+                // Detectar se é um caminho que aponta para dentro do projeto
+                var projectIndicators = new[] { "desafio-caixa-geadi", "database", "massa-de-teste-db" };
+                
+                foreach (var indicator in projectIndicators)
+                {
+                    var indicatorIndex = pasta.LastIndexOf(indicator, StringComparison.OrdinalIgnoreCase);
+                    if (indicatorIndex >= 0)
+                    {
+                        // Extrair caminho relativo a partir do indicador
+                        var relativePath = pasta.Substring(indicatorIndex);
+                        var linuxPath = relativePath.Replace('\\', '/');
+                        return $"/app/data/{linuxPath}";
+                    }
+                }
+                
+                // Se não encontrou indicadores, assumir que é um caminho relativo ao projeto
+                var pathFromRoot = pasta.Replace('\\', '/');
+                if (pathFromRoot.StartsWith("C:", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Tentar encontrar uma pasta comum e usar caminho relativo
+                    return "/app/data"; // Fallback para raiz dos dados
+                }
+                return $"/app/data/{pathFromRoot}";
             }
             else
             {
-                // Se não começar com o caminho esperado, retorna como está (pode ser já normalizado)
-                return pasta;
+                // Caminho já no formato Linux ou relativo
+                return pasta.StartsWith("/") ? pasta : $"/app/data/{pasta.Replace('\\', '/')}";
             }
         }
         else
         {
-            // Ambiente local - usar caminho Windows como está
-            return pasta;
+            // Ambiente local - detectar automaticamente o diretório do projeto
+            var currentDirectory = Directory.GetCurrentDirectory();
+            
+            // Se o caminho é absoluto, usar como está
+            if (Path.IsPathRooted(pasta))
+            {
+                return pasta;
+            }
+            
+            // Se é relativo, combinar com diretório atual ou buscar raiz do projeto
+            var projectRoot = FindProjectRoot(currentDirectory);
+            if (projectRoot != null)
+            {
+                return Path.Combine(projectRoot, pasta);
+            }
+            
+            // Fallback: usar diretório atual
+            return Path.Combine(currentDirectory, pasta);
         }
+    }
+
+    /// <summary>
+    /// Encontra a raiz do projeto procurando por arquivos indicadores
+    /// </summary>
+    /// <param name="startPath">Caminho inicial para busca</param>
+    /// <returns>Caminho da raiz do projeto ou null se não encontrado</returns>
+    private static string? FindProjectRoot(string startPath)
+    {
+        var current = new DirectoryInfo(startPath);
+        
+        while (current != null)
+        {
+            // Procurar por arquivos que indicam a raiz do projeto
+            var indicators = new[] { 
+                "docker-compose.yml", 
+                "ControleArquivosGEADI.sln",
+                ".git"
+            };
+            
+            foreach (var indicator in indicators)
+            {
+                if (File.Exists(Path.Combine(current.FullName, indicator)) ||
+                    Directory.Exists(Path.Combine(current.FullName, indicator)))
+                {
+                    return current.FullName;
+                }
+            }
+            
+            current = current.Parent;
+        }
+        
+        return null;
     }
 }
 
