@@ -43,13 +43,7 @@ dotnet ef database update
 cd ..
 ```
 
-### 4. (Opcional) Carregar dados de teste
-```powershell
-# Importa 100.000 registros de teste em ~2 segundos
-.\Scripts\fast-load.ps1
-```
-
-### 5. Acessar aplicação
+### 4. Acessar aplicação
 - **API**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger
 - **SQL Server**: localhost:1433 (sa/Ge@di2024)
@@ -60,18 +54,12 @@ cd ..
 ```powershell
 # Inicialização otimizada (~15 segundos)
 .\Scripts\quick-start.ps1
-
-# (Opcional) Carregar dados de teste
-.\Scripts\fast-load.ps1
 ```
 
 ### Opção 2: Inicialização Completa
 ```powershell
 # Executa: verificação + docker-compose + migrations + banco
 .\Scripts\start.ps1
-
-# (Opcional) Carregar dados de teste após inicialização
-.\Scripts\fast-load.ps1
 ```
 
 ### Opção 3: Desenvolvimento Híbrido (SQL no Docker + API Local)
@@ -132,10 +120,10 @@ cd ..
 dotnet run --project ControleArquivosGEADI.API
 ```
 
-#### 4. (Opcional) Carregar dados de teste
+#### 4. (Opcional) Testar banco isoladamente
 ```powershell
 # Em outro terminal, na raiz do projeto:
-.\Scripts\fast-load.ps1
+.\database\script-manual\import_ETL_BASE_MENSAL.ps1
 ```
 
 **Vantagens da abordagem híbrida:**
@@ -171,13 +159,6 @@ dotnet run
 # API disponível em: http://localhost:8080
 ```
 
-#### 4. (Opcional) Carregar dados de teste
-```powershell
-# Voltar para raiz do projeto e executar
-cd ..
-.\Scripts\fast-load.ps1
-```
-
 ## 📊 Banco de Dados
 
 ### Estrutura das Tabelas
@@ -191,12 +172,24 @@ A aplicação cria automaticamente as seguintes tabelas:
 #### Opção 1: Banco Vazio (Padrão)
 Após seguir os passos de instalação, o banco será criado com as tabelas vazias, pronto para receber dados via API.
 
-#### Opção 2: Banco com Dados de Teste
-Para popular o banco com 100.000 registros de teste:
+#### Opção 2: Testar Rota ETLBaseMensal
+Use a API normalmente e envie o arquivo `BASE_MENSAL.csv` via endpoint ETLBaseMensal para testar a funcionalidade.
+
+## 🧪 Testes Isolados de Banco de Dados
+
+### Cenário: Testar Inserção Direta no Banco (Sem API)
+Caso queira verificar se o banco consegue receber dados sem usar a API:
 
 ```powershell
-# Executa importação rápida de dados (recomendado)
-.\Scripts\fast-load.ps1
+# Para testar inserção direta no SQL Server
+.\database\script-manual\import_ETL_BASE_MENSAL.ps1
+```
+
+**Quando usar:**
+- ✅ Debugging de problemas de conexão com banco
+- ✅ Testar performance de inserção isoladamente  
+- ✅ Verificar se migrations foram aplicadas corretamente
+- ❌ **NÃO usar para inicialização normal da aplicação**
 
 # Verificar se os dados foram importados
 .\Scripts\check-data.ps1
@@ -321,9 +314,6 @@ docker-compose down -v
 # Inicialização completa automatizada
 .\Scripts\start.ps1
 
-# Importar dados de teste (100k registros)
-.\Scripts\fast-load.ps1
-
 # Verificar dados importados
 .\Scripts\check-data.ps1
 ```
@@ -383,9 +373,6 @@ docker ps
 
 # Verificar conexão com banco
 .\Scripts\check-data.ps1
-
-# Reimportar dados de teste
-.\Scripts\fast-load.ps1
 ```
 
 ## 📁 Estrutura do Projeto
@@ -401,10 +388,11 @@ desafio-caixa-geadi/
 │   ├── verify.ps1                # Verificação de dependências
 │   ├── quick-start.ps1           # Inicialização rápida (~15s)
 │   ├── start.ps1                 # Inicialização completa
-│   ├── fast-load.ps1             # Importação de dados de teste
 │   └── check-data.ps1            # Verificação de dados
 ├── database/                     # 🗄️ Scripts e dados para desenvolvimento
-│   ├── massa-de-teste-db/        # Dados CSV para testes (100k registros)
+│   ├── script-manual/            # Script de teste do banco
+│   │   └── import_ETL_BASE_MENSAL.ps1  # Teste isolado do banco
+│   ├── massa-de-teste-db/        # Dados CSV para rota ETLBaseMensal
 │   └── docker-compose.yml       # Configuração SQL Server
 ├── Dockerfile                    # � Configuração Docker da aplicação
 ├── docker-compose.yml           # 🎯 Orquestração dos serviços
@@ -418,7 +406,6 @@ desafio-caixa-geadi/
 | `Scripts\verify.ps1` | ~5s | Verifica dependências (Docker/.NET) | Antes de iniciar |
 | `Scripts\quick-start.ps1` | ~15s | Inicialização otimizada | ⭐ **Recomendado** |
 | `Scripts\start.ps1` | ~30s | Inicialização completa com verificações | Primeira execução |
-| `Scripts\fast-load.ps1` | ~2s | Importa 100k registros de teste | Para dados de teste |
 | `Scripts\check-data.ps1` | ~1s | Verifica quantidade de dados no banco | Para validação |
 
 ## 🎯 Fluxos Recomendados
@@ -426,7 +413,6 @@ desafio-caixa-geadi/
 ### 🚀 **Desenvolvimento Rápido**
 ```powershell
 .\Scripts\quick-start.ps1      # 15s - Inicializar tudo
-.\Scripts\fast-load.ps1        # 2s  - Dados de teste (opcional)
 ```
 
 ### 🔍 **Primeira Vez/Troubleshooting** 
@@ -449,7 +435,6 @@ docker-compose up -d   # Reiniciar containers
 ```powershell
 docker-compose down -v # Remover containers + volumes
 .\Scripts\quick-start.ps1       # Reconstruir do zero
-.\Scripts\fast-load.ps1         # Reimportar dados (opcional)
 ```
 
 ## 🏷️ Tecnologias
