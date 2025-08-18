@@ -4,6 +4,7 @@ using ControleArquivosGEADI.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ControleArquivosGEADI.API.Migrations
 {
     [DbContext(typeof(ControleDboContext))]
-    partial class ControleDboContextModelSnapshot : ModelSnapshot
+    [Migration("20250818131059_AddBaseMensalEtlTable")]
+    partial class AddBaseMensalEtlTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

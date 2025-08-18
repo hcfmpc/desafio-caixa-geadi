@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: geadi-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Ge@di2024
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./database/GEADICriandoTabelas.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - geadi-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Ge@di2024 -C -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # .NET API Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geadi-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=sqlserver;Initial Catalog=DBGEADI;User ID=sa;Password=Ge@di2024;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    ports:
+      - "8080:8080"
+    volumes:
+      - "C:/LocalGit/Caixa:/app/data"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+        restart: true
+    networks:
+      - geadi-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+
+networks:
+  geadi-network:
+    driver: bridge

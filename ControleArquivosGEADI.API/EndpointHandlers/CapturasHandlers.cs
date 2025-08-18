@@ -17,12 +17,14 @@ public class CapturasHandlers
     IMapper mapper,
     string pasta)
     {
+        // Normalizar caminho baseado no ambiente
+        var caminhoNormalizado = NormalizarCaminho(pasta);
 
-        if (!Directory.Exists(pasta))
-            return TypedResults.NotFound<string>("Pasta não encontrada");
+        if (!Directory.Exists(caminhoNormalizado))
+            return TypedResults.NotFound<string>($"Pasta não encontrada: {caminhoNormalizado}");
 
         var dataLog = DateTime.Now;
-        var arquivos = Directory.GetFiles(pasta)
+        var arquivos = Directory.GetFiles(caminhoNormalizado)
                              .Select(file => new
                              {
                                  Name = Path.GetFileName(file),
@@ -67,15 +69,19 @@ public class CapturasHandlers
     ([FromServices] ControleDboContext controleDboContext,
     string pasta)
     {
-        if (!Directory.Exists(pasta))
-            return TypedResults.NotFound("Pasta não encontrada");
+        var caminhoNormalizado = NormalizarCaminho(pasta);
+        
+        if (!Directory.Exists(caminhoNormalizado))
+            return TypedResults.NotFound($"Pasta não encontrada: {caminhoNormalizado}");
 
-        var csvFilePath = Path.Combine(pasta, "BASE_MENSAL.csv");
+        var csvFilePath = Path.Combine(caminhoNormalizado, "BASE_MENSAL.csv");
 
         if (!File.Exists(csvFilePath))
             return TypedResults.NotFound("Arquivo BASE_MENSAL.csv não encontrado na pasta");
 
         var csvData = new List<Aditb003BaseMensalEtl>();
+        Console.WriteLine("Iniciando leitura do arquivo CSV...");
+        
         using (var reader = new StreamReader(csvFilePath))
         using (var csv = new CsvReader(
                                         reader, 
@@ -91,12 +97,53 @@ public class CapturasHandlers
             csvData = csv.GetRecords<Aditb003BaseMensalEtl>().ToList();
         }
 
+        Console.WriteLine($"Arquivo CSV processado: {csvData.Count} registros lidos");
+        Console.WriteLine("Salvando dados no banco...");
+        
         await controleDboContext.Aditb003BaseMensalEtls.AddRangeAsync(csvData);
         await controleDboContext.SaveChangesAsync();
 
-        await controleDboContext.Database.ExecuteSqlRawAsync("EXEC [dbo].[adisp001_executa_update_base_mensal]");
+        Console.WriteLine("Dados salvos com sucesso!");
+        return TypedResults.Ok($"Dados carregados com sucesso para ETL: {csvData.Count} registros");
+    }
 
-        return TypedResults.Ok("Dados carregados com sucesso para ETL");
+    /// <summary>
+    /// Normaliza o caminho baseado no ambiente de execução
+    /// </summary>
+    /// <param name="pasta">Caminho informado pelo usuário (sempre no formato C:\)</param>
+    /// <returns>Caminho normalizado para o ambiente atual</returns>
+    private static string NormalizarCaminho(string pasta)
+    {
+        // Verificar se estamos em ambiente Docker
+        var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true" ||
+                       Directory.Exists("/app/data");
+
+        if (isDocker)
+        {
+            // Ambiente Docker - converter C:\LocalGit\Caixa\... para /app/data/...
+            if (pasta.StartsWith("C:\\LocalGit\\Caixa\\", StringComparison.OrdinalIgnoreCase))
+            {
+                // Remove "C:\LocalGit\Caixa\" e substitui por "/app/data/"
+                var relativePath = pasta.Substring("C:\\LocalGit\\Caixa\\".Length);
+                var linuxPath = relativePath.Replace('\\', '/');
+                return $"/app/data/{linuxPath}";
+            }
+            else if (pasta.StartsWith("C:\\LocalGit\\Caixa", StringComparison.OrdinalIgnoreCase))
+            {
+                // Se for exatamente "C:\LocalGit\Caixa"
+                return "/app/data";
+            }
+            else
+            {
+                // Se não começar com o caminho esperado, retorna como está (pode ser já normalizado)
+                return pasta;
+            }
+        }
+        else
+        {
+            // Ambiente local - usar caminho Windows como está
+            return pasta;
+        }
     }
 }
 

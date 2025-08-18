@@ -1,0 +1,50 @@
+# Docker ignore file for .NET projects
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+LICENSE.txt
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local development files
+appsettings.Development.json
+appsettings.Local.json
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Database and test data
+database/
+massa-de-teste-db/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
