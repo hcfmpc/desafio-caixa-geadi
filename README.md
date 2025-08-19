@@ -124,75 +124,82 @@ PROJECT_ROOT=/home/usuario/projetos/desafio-caixa-geadi
 PROJECT_ROOT=/Users/usuario/desenvolvimento/desafio-caixa-geadi
 ```
 
-## 🛠️ Desenvolvimento Local
+## 🛠️ Cenários de Desenvolvimento
 
-### Opção 1: Híbrido (Recomendado para Desenvolvimento)
-Use SQL Server no Docker + API local para melhor debugging:
+Escolha o script que melhor se adapta ao seu ambiente:
 
-#### 1. Iniciar apenas SQL Server
+### 🐳 **Cenário 1: Tudo Docker** (Produção/Demonstração)
 ```powershell
-# Subir apenas o banco de dados
+.\Scripts\start_full_docker.ps1
+```
+**Quando usar:**
+- ✅ Demonstrações e testes finais
+- ✅ Ambiente idêntico à produção
+- ✅ Setup sem dependências locais
+
+**O que faz:**
+- Inicia SQL Server + API em containers
+- Configura ambiente automaticamente
+- Aplica migrations e testa conectividade
+
+---
+
+### 🏗️ **Cenário 2: API Local + Banco Docker** (Desenvolvimento)
+```powershell
+.\Scripts\start_apiDotnet_dbDocker.ps1
+```
+**Quando usar:**
+- ✅ **Recomendado para desenvolvimento**
+- ✅ Debugging completo com breakpoints
+- ✅ Hot reload durante codificação
+
+**O que faz:**
+- Inicia apenas SQL Server no Docker
+- Roda API localmente via `dotnet run`
+- Permite debugging completo no VS Code
+
+---
+
+### 🎯 **Cenário 3: API Local + Banco Servidor** (Corporativo)
+```powershell
+.\Scripts\start_apiDotnet_dbServer.ps1
+```
+**Quando usar:**
+- ✅ Banco SQL Server já disponível na rede
+- ✅ Ambientes corporativos com BD centralizado
+- ✅ Desenvolvimento com dados reais
+
+**O que faz:**
+- Conecta no banco configurado em `appsettings.json`
+- Valida conectividade antes de iniciar
+- Roda API localmente para debugging
+
+---
+
+### ⚙️ **Configuração Manual** (Avançado)
+
+#### Para configurar manualmente:
+
+##### 1. Configurar ambiente
+```powershell
+# Apenas se necessário configurar caminhos
+.\Scripts\setup-env.ps1
+```
+
+##### 2. Iniciar componentes individuais
+```powershell
+# Apenas SQL Server no Docker
 docker-compose up -d sqlserver
-# Aguardar inicialização (~30 segundos na primeira vez)
+
+# Apenas API local
+cd ControleArquivosGEADI.API
+dotnet run --urls "http://localhost:8080"
 ```
 
-#### 2. Executar API localmente
+##### 3. Aplicar migrations manualmente
 ```powershell
-# Executar a partir da raiz do projeto
-dotnet run --project ControleArquivosGEADI.API
-
-# API disponível em: http://localhost:8080
-# Swagger UI: http://localhost:8080/swagger
-```
-
-#### 3. (Opcional) Aplicar migrations na primeira vez
-```powershell
-# Se for a primeira execução:
 cd ControleArquivosGEADI.API
 dotnet ef database update
-cd ..
-
-# Depois executar:
-dotnet run --project ControleArquivosGEADI.API
-```
-
-#### 4. (Opcional) Testar banco isoladamente
-```powershell
-# Em outro terminal, na raiz do projeto:
-.\database\script-manual\import_ETL_BASE_MENSAL.ps1
-```
-
-**Vantagens da abordagem híbrida:**
-- ✅ Banco containerizado (sem instalação local)
-- ✅ API rodando localmente (debugging completo)
-- ✅ Mesma porta (8080) tanto local quanto container
-- ✅ Hot reload durante desenvolvimento
-- ✅ Acesso completo a breakpoints
-- ✅ Logs detalhados no terminal
-- ✅ Mesma porta (8080) tanto local quanto container
-- ✅ Hot reload durante desenvolvimento
-- ✅ Acesso completo a breakpoints
-
-### Opção 2: Totalmente Local (sem Docker)
-
-#### 1. Instalar dependências
-- Baixe e instale o [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- Configure SQL Server local ou use LocalDB
-
-#### 2. Configurar banco
-```powershell
-# Editar connection string em appsettings.json se necessário
-# Aplicar migrations
-cd ControleArquivosGEADI.API
-dotnet ef database update
-cd ..
-```
-
-#### 3. Executar aplicação
-```powershell
-cd ControleArquivosGEADI.API
-dotnet run
-# API disponível em: http://localhost:8080
 ```
 
 ## 📊 Banco de Dados
@@ -227,9 +234,6 @@ Caso queira verificar se o banco consegue receber dados sem usar a API:
 - ✅ Verificar se migrations foram aplicadas corretamente
 - ❌ **NÃO usar para inicialização normal da aplicação**
 
-# Verificar se os dados foram importados
-.\Scripts\check-data.ps1
-```
 **Dados importados:**
 - Tabela: `aditb003_base_mensal_ETL`
 - Fonte: `database/massa-de-teste-db/BASE_MENSAL.csv`
@@ -255,10 +259,9 @@ docker-compose down -v
 ```
 
 #### 📊 **Verificar Dados Após Reinicialização**
-```powershell
-.\Scripts\check-data.ps1
-# Mostra quantidade de registros em cada tabela
-```
+A aplicação mantém todos os dados após reinicialização. Para verificar, acesse:
+- **Swagger UI**: http://localhost:8080/swagger  
+- **Endpoint**: GET `/arquivos` para ver arquivos mapeados
 
 ## 🏢 Usando SQL Server Externo
 
@@ -349,9 +352,6 @@ docker-compose down -v
 
 # Inicialização completa automatizada
 .\Scripts\start.ps1
-
-# Verificar dados importados
-.\Scripts\check-data.ps1
 ```
 
 ## ⏱️ Comparação de Performance
@@ -383,8 +383,8 @@ docker ps
 # Verificar logs do banco
 docker logs geadi-sqlserver
 
-# Testar conexão diretamente
-.\Scripts\check-data.ps1
+# Testar conexão via API
+curl http://localhost:8080/arquivos
 ```
 
 ### Swagger não aparece
@@ -422,9 +422,9 @@ desafio-caixa-geadi/
 │   └── Migrations/               # Migrações do banco
 ├── Scripts/                      # � Scripts de automação
 │   ├── verify.ps1                # Verificação de dependências
+│   ├── setup-env.ps1             # Configuração automática
 │   ├── quick-start.ps1           # Inicialização rápida (~15s)
-│   ├── start.ps1                 # Inicialização completa
-│   └── check-data.ps1            # Verificação de dados
+│   └── start.ps1                 # Inicialização completa
 ├── database/                     # 🗄️ Scripts e dados para desenvolvimento
 │   ├── script-manual/            # Script de teste do banco
 │   │   └── import_ETL_BASE_MENSAL.ps1  # Teste isolado do banco
@@ -440,9 +440,9 @@ desafio-caixa-geadi/
 | Script | Tempo | Propósito | Quando Usar |
 |--------|-------|-----------|-------------|
 | `Scripts\verify.ps1` | ~5s | Verifica dependências (Docker/.NET) | Antes de iniciar |
+| `Scripts\setup-env.ps1` | ~1s | Configura ambiente automaticamente | Primeira vez |
 | `Scripts\quick-start.ps1` | ~15s | Inicialização otimizada | ⭐ **Recomendado** |
 | `Scripts\start.ps1` | ~30s | Inicialização completa com verificações | Primeira execução |
-| `Scripts\check-data.ps1` | ~1s | Verifica quantidade de dados no banco | Para validação |
 
 ## 🎯 Fluxos Recomendados
 
@@ -455,7 +455,6 @@ desafio-caixa-geadi/
 ```powershell
 .\Scripts\verify.ps1           # 5s  - Verificar dependências
 .\Scripts\start.ps1            # 30s - Inicialização completa
-.\Scripts\check-data.ps1       # 1s  - Verificar se tudo OK
 ```
 
 ## 🔄 Gerenciamento de Dados
