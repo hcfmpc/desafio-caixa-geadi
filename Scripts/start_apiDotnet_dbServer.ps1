@@ -4,9 +4,6 @@ Write-Host "=== Start API .NET + DB Server GEADI ===" -ForegroundColor Green
 # Garantir que estamos na pasta raiz do projeto
 Push-Location "$PSScriptRoot\.."
 
-# Carregar funcoes utilitarias
-. "$PSScriptRoot\env-utils.ps1"
-
 # ETAPA 1: Verificar .NET (obrigatorio)
 Write-Host "ETAPA 1: Verificando .NET..." -ForegroundColor Yellow
 $dotnetVersion = dotnet --version 2>$null
@@ -25,6 +22,15 @@ if (-not (Test-Path ".env")) {
     .\Scripts\setup-env.ps1
 } else {
     Write-Host "   OK: .env ja existe" -ForegroundColor Green
+}
+
+# Carregar funcoes utilitarias (após garantir que .env existe)
+. "$PSScriptRoot\env-utils.ps1"
+
+# Validar variaveis obrigatorias
+if (-not (Test-RequiredEnvVars @("DB_USER", "DB_PASSWORD", "DB_NAME"))) {
+    Pop-Location
+    exit 1
 }
 
 # ETAPA 3: Verificar configuracao de conexao

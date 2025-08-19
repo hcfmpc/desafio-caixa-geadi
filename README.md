@@ -8,7 +8,13 @@ API para controle de arquivos e lotes do sistema GEADI desenvolvida em .NET 8.0.
 - **Docker Desktop** - [Download aqui](https://www.docker.com/products/docker-desktop/)
 - **.NET 8.0 SDK** - [Download aqui](https://dotnet.microsoft.com/download/dotnet/8.0) (para migrations)
 - **PowerShell** (para scripts de automação)
-- **Git** (para clonar o repositório)
+- **Gi├── Scripts/                      # 🔧 Scripts de automação
+│   ├── verify.ps1                # Verificação de dependências
+│   ├── setup-env.ps1             # Configuração automática
+│   ├── env-utils.ps1             # Funções utilitárias e segurança
+│   ├── start_full_docker.ps1     # Cenário 1: Tudo Docker
+│   ├── start_apiDotnet_dbDocker.ps1  # Cenário 2: API local + DB Docker
+│   └── start_apiDotnet_dbServer.ps1  # Cenário 3: API local + DB servidorpara clonar o repositório)
 
 ### Opção 2: Desenvolvimento Local
 - **.NET 8.0 SDK** - [Download aqui](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -420,17 +426,21 @@ desafio-caixa-geadi/
 │   ├── EndpointHandlers/         # Handlers dos endpoints
 │   ├── Models/                   # Modelos de dados
 │   └── Migrations/               # Migrações do banco
-├── Scripts/                      # � Scripts de automação
+├── Scripts/                      # 🔧 Scripts de automação
 │   ├── verify.ps1                # Verificação de dependências
 │   ├── setup-env.ps1             # Configuração automática
-│   ├── quick-start.ps1           # Inicialização rápida (~15s)
-│   └── start.ps1                 # Inicialização completa
+│   ├── env-utils.ps1             # Funções utilitárias e segurança
+│   ├── start_full_docker.ps1     # Cenário 1: Tudo Docker
+│   ├── start_apiDotnet_dbDocker.ps1  # Cenário 2: API local + DB Docker
+│   ├── start_apiDotnet_dbServer.ps1  # Cenário 3: API local + DB servidor
+│   └── ARQUITETURA_SCRIPTS.md    # Documentação detalhada dos scripts
 ├── database/                     # 🗄️ Scripts e dados para desenvolvimento
 │   ├── script-manual/            # Script de teste do banco
 │   │   └── import_ETL_BASE_MENSAL.ps1  # Teste isolado do banco
 │   ├── massa-de-teste-db/        # Dados CSV para rota ETLBaseMensal
 │   └── docker-compose.yml       # Configuração SQL Server
-├── Dockerfile                    # � Configuração Docker da aplicação
+├── .env                          # 🔒 Variáveis de ambiente (credenciais)
+├── Dockerfile                    # 🐳 Configuração Docker da aplicação
 ├── docker-compose.yml           # 🎯 Orquestração dos serviços
 └── README.md                    # 📖 Esta documentação
 ```
@@ -441,20 +451,34 @@ desafio-caixa-geadi/
 |--------|-------|-----------|-------------|
 | `Scripts\verify.ps1` | ~5s | Verifica dependências (Docker/.NET) | Antes de iniciar |
 | `Scripts\setup-env.ps1` | ~1s | Configura ambiente automaticamente | Primeira vez |
-| `Scripts\quick-start.ps1` | ~15s | Inicialização otimizada | ⭐ **Recomendado** |
-| `Scripts\start.ps1` | ~30s | Inicialização completa com verificações | Primeira execução |
+| `Scripts\start_full_docker.ps1` | ~30s | Tudo Docker (API + DB) | ⭐ **Produção/Demo** |
+| `Scripts\start_apiDotnet_dbDocker.ps1` | ~20s | API local + DB Docker | ⭐ **Desenvolvimento** |
+| `Scripts\start_apiDotnet_dbServer.ps1` | ~15s | API local + DB servidor | **Corporativo** |
+
+### 🔒 **Segurança Implementada**
+- **Credenciais via .env**: Todas as senhas vêm exclusivamente do arquivo `.env`
+- **Validação obrigatória**: Scripts falham se variáveis estão ausentes
+- **Output mascarado**: Credenciais nunca aparecem nos logs (`user/***`)
+- **Sem hardcoding**: Zero credenciais no código fonte
 
 ## 🎯 Fluxos Recomendados
 
 ### 🚀 **Desenvolvimento Rápido**
 ```powershell
-.\Scripts\quick-start.ps1      # 15s - Inicializar tudo
+.\Scripts\start_apiDotnet_dbDocker.ps1  # 20s - API local + DB Docker (recomendado)
 ```
 
 ### 🔍 **Primeira Vez/Troubleshooting** 
 ```powershell
-.\Scripts\verify.ps1           # 5s  - Verificar dependências
-.\Scripts\start.ps1            # 30s - Inicialização completa
+.\Scripts\verify.ps1                    # 5s  - Verificar dependências
+.\Scripts\start_full_docker.ps1         # 30s - Inicialização completa
+```
+
+### 🏢 **Ambiente Corporativo**
+```powershell
+# 1. Configure appsettings.json com seu servidor SQL
+# 2. Execute:
+.\Scripts\start_apiDotnet_dbServer.ps1   # 15s - API local + servidor
 ```
 
 ## 🔄 Gerenciamento de Dados
@@ -469,7 +493,7 @@ docker-compose up -d   # Reiniciar containers
 ### **Reset Completo (Remove Tudo)**
 ```powershell
 docker-compose down -v # Remover containers + volumes
-.\Scripts\quick-start.ps1       # Reconstruir do zero
+.\Scripts\start_full_docker.ps1         # Reconstruir do zero
 ```
 
 ## 🏷️ Tecnologias
@@ -484,6 +508,8 @@ docker-compose down -v # Remover containers + volumes
 ## 📝 Notas Importantes
 
 - O Swagger só funciona em ambiente `Development`
-- A senha do SQL Server é `Ge@di2024` (para desenvolvimento)
+- **Credenciais de desenvolvimento**: Definidas no arquivo `.env` (não hardcoded)
+- **Segurança**: Scripts validam variáveis obrigatórias e mascaram credenciais no output
 - Os dados ficam persistidos no volume Docker `sqlserver_data`
 - Para produção, considere usar Docker Secrets para senhas
+- **env-utils.ps1**: Fornece funções seguras para gerenciamento de credenciais

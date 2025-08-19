@@ -34,13 +34,45 @@ function Get-ConnectionString {
         [int]$Timeout = 30
     )
     
-    # Se user/password nao foram fornecidos, buscar do .env
+    # Se user/password nao foram fornecidos, buscar OBRIGATORIAMENTE do .env
     if (-not $User) {
-        $User = Get-EnvVar "DB_USER" "sa"
+        $User = Get-EnvVar "DB_USER"
+        if (-not $User) {
+            throw "Variavel DB_USER nao encontrada no .env ou nas variaveis de ambiente"
+        }
     }
     if (-not $Password) {
-        $Password = Get-EnvVar "DB_PASSWORD" "Ge@di2024"
+        $Password = Get-EnvVar "DB_PASSWORD"
+        if (-not $Password) {
+            throw "Variavel DB_PASSWORD nao encontrada no .env ou nas variaveis de ambiente"
+        }
     }
     
     return "Server=$Server;Database=$Database;User Id=$User;Password=$Password;TrustServerCertificate=True;Connect Timeout=$Timeout;"
+}
+
+# Funcao para validar se todas as variaveis obrigatorias estao definidas
+function Test-RequiredEnvVars {
+    param(
+        [string[]]$RequiredVars
+    )
+    
+    $missing = @()
+    foreach ($var in $RequiredVars) {
+        $value = Get-EnvVar $var
+        if (-not $value) {
+            $missing += $var
+        }
+    }
+    
+    if ($missing.Count -gt 0) {
+        Write-Host "   ERRO: Variaveis obrigatorias nao encontradas:" -ForegroundColor Red
+        foreach ($var in $missing) {
+            Write-Host "      • $var" -ForegroundColor Gray
+        }
+        Write-Host "   Verifique o arquivo .env" -ForegroundColor Yellow
+        return $false
+    }
+    
+    return $true
 }
