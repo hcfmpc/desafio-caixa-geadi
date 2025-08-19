@@ -81,7 +81,7 @@ try {
     
     $command = $connection.CreateCommand()
     $command.CommandText = "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'DBGEADI') CREATE DATABASE DBGEADI"
-    $command.ExecuteNonQuery()
+    $command.ExecuteNonQuery() | Out-Null
     $connection.Close()
     Write-Host "   OK: Banco DBGEADI criado/verificado!" -ForegroundColor Green
 }

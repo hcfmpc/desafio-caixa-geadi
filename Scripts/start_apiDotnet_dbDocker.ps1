@@ -1,71 +1,54 @@
-# ===============================================================
-# Start API .NET + DB Docker - API local + Banco em container
-# ===============================================================
-# Inicialização híbrida: API rodando local, banco no Docker
-# ===============================================================
-
-param()
-
-Write-Host "=======================================================" -ForegroundColor Green
-Write-Host "🏗️ INICIALIZAÇÃO HÍBRIDA - API .NET + DB DOCKER" -ForegroundColor Green
-Write-Host "=======================================================" -ForegroundColor Green
+# Script hibrido - API .NET local + Banco Docker
+Write-Host "=== Start API .NET + DB Docker GEADI ===" -ForegroundColor Green
 
 # Garantir que estamos na pasta raiz do projeto
 Push-Location "$PSScriptRoot\.."
 
-# ETAPA 1: Verificar dependências
-Write-Host "📋 ETAPA 1: Verificando dependências..." -ForegroundColor Yellow
-
-$dockerOK = $false
-try {
-    $dockerVersion = docker --version 2>$null
-    if ($dockerVersion) {
-        $dockerOK = $true
-        Write-Host "   ✅ Docker: $dockerVersion" -ForegroundColor Green
-    }
-} catch {
-    Write-Host "   ❌ Docker não encontrado" -ForegroundColor Red
-    Write-Host "   📥 Instale: https://www.docker.com/products/docker-desktop/" -ForegroundColor Cyan
+# ETAPA 1: Verificar Docker
+Write-Host "ETAPA 1: Verificando Docker..." -ForegroundColor Yellow
+$dockerVersion = docker --version 2>$null
+if (-not $dockerVersion) {
+    Write-Host "   ERRO: Docker não encontrado" -ForegroundColor Red
+    Write-Host "   Instale: https://www.docker.com/products/docker-desktop/" -ForegroundColor Cyan
+    Pop-Location
     exit 1
 }
+Write-Host "   OK: Docker encontrado" -ForegroundColor Green
 
-$dotnetOK = $false
-try {
-    $dotnetVersion = dotnet --version 2>$null
-    if ($dotnetVersion) {
-        $dotnetOK = $true
-        Write-Host "   ✅ .NET SDK: $dotnetVersion" -ForegroundColor Green
-    }
-} catch {
-    Write-Host "   ❌ .NET SDK não encontrado" -ForegroundColor Red
-    Write-Host "   📥 Instale: https://dotnet.microsoft.com/download/dotnet/8.0" -ForegroundColor Cyan
+# ETAPA 2: Verificar .NET (obrigatorio)
+Write-Host "ETAPA 2: Verificando .NET..." -ForegroundColor Yellow
+$dotnetVersion = dotnet --version 2>$null
+if (-not $dotnetVersion) {
+    Write-Host "   ERRO: .NET não encontrado" -ForegroundColor Red
+    Write-Host "   Instale: https://dotnet.microsoft.com/download/dotnet/8.0" -ForegroundColor Cyan
+    Pop-Location
     exit 1
 }
+Write-Host "   OK: .NET encontrado" -ForegroundColor Green
 
-# ETAPA 2: Configurar ambiente
-Write-Host "`n🔧 ETAPA 2: Configurando ambiente..." -ForegroundColor Yellow
-
+# ETAPA 3: Configurar ambiente
+Write-Host "ETAPA 3: Configurando ambiente..." -ForegroundColor Yellow
 if (-not (Test-Path ".env")) {
-    Write-Host "   🔄 Criando configuração .env..." -ForegroundColor Cyan
+    Write-Host "   Criando .env..." -ForegroundColor Cyan
     .\Scripts\setup-env.ps1
 } else {
-    Write-Host "   ✅ Arquivo .env já configurado" -ForegroundColor Green
+    Write-Host "   OK: .env ja existe" -ForegroundColor Green
 }
 
-# ETAPA 3: Parar containers existentes e iniciar apenas SQL
-Write-Host "`n🛑 ETAPA 3: Configurando banco Docker..." -ForegroundColor Yellow
+# ETAPA 4: Parar containers e iniciar apenas SQL Server
+Write-Host "ETAPA 4: Parando containers e iniciando SQL Server..." -ForegroundColor Yellow
 docker-compose down > $null 2>&1
 docker-compose up -d sqlserver
 
-# Aguardar SQL Server ficar pronto
-Write-Host "   ⏳ Aguardando SQL Server (max 60s)..." -ForegroundColor Cyan
+# ETAPA 5: Aguardar SQL Server ficar pronto
+Write-Host "ETAPA 5: Aguardando SQL Server inicializar (max 60s)..." -ForegroundColor Yellow
 $timeout = 60
 $elapsed = 0
 $ready = $false
 
 while ($elapsed -lt $timeout -and -not $ready) {
-    Start-Sleep 3
-    $elapsed += 3
+    Start-Sleep 5
+    $elapsed += 5
     
     try {
         $connection = New-Object System.Data.SqlClient.SqlConnection
@@ -73,7 +56,7 @@ while ($elapsed -lt $timeout -and -not $ready) {
         $connection.Open()
         $connection.Close()
         $ready = $true
-        Write-Host "   ✅ SQL Server pronto em $elapsed segundos!" -ForegroundColor Green
+        Write-Host "   OK: SQL Server pronto em $elapsed segundos!" -ForegroundColor Green
     }
     catch {
         Write-Host "." -NoNewline -ForegroundColor Gray
@@ -81,55 +64,52 @@ while ($elapsed -lt $timeout -and -not $ready) {
 }
 
 if (-not $ready) {
-    Write-Host "`n   ❌ SQL Server não respondeu em 60s" -ForegroundColor Red
+    Write-Host "`nERRO: SQL Server não respondeu em 60s" -ForegroundColor Red
+    Pop-Location
     exit 1
 }
 
-# ETAPA 4: Criar banco DBGEADI
-Write-Host "`n💾 ETAPA 4: Verificando banco DBGEADI..." -ForegroundColor Yellow
+# ETAPA 6: Criar banco DBGEADI
+Write-Host "`nETAPA 6: Criando banco DBGEADI..." -ForegroundColor Yellow
 try {
     $connection = New-Object System.Data.SqlClient.SqlConnection
     $connection.ConnectionString = "Server=localhost,1433;Database=master;User Id=sa;Password=Ge@di2024;TrustServerCertificate=True;"
     $connection.Open()
     
     $command = $connection.CreateCommand()
-    $command.CommandText = "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'DBGEADI') CREATE DATABASE DBGEADI"
+    $command.CommandText = "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'DBGEADI') CREATE DATABASE DBGEADI"
     $command.ExecuteNonQuery() | Out-Null
     $connection.Close()
-    
-    Write-Host "   ✅ Banco DBGEADI criado/verificado" -ForegroundColor Green
-} catch {
-    Write-Host "   ❌ Erro ao criar banco: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "   OK: Banco DBGEADI criado/verificado!" -ForegroundColor Green
+}
+catch {
+    Write-Host "   ERRO: $($_.Exception.Message)" -ForegroundColor Red
+    Pop-Location
     exit 1
 }
 
-# ETAPA 5: Verificar e instalar EF Tools
-Write-Host "`n🔧 ETAPA 5: Verificando EF Tools..." -ForegroundColor Yellow
-try {
-    dotnet ef --version > $null 2>&1
-    Write-Host "   ✅ EF Tools já instalado" -ForegroundColor Green
-} catch {
-    Write-Host "   🔄 Instalando EF Tools..." -ForegroundColor Cyan
+# ETAPA 7: Verificar EF Tools e aplicar migrations
+Write-Host "`nETAPA 7: Aplicando migrations..." -ForegroundColor Yellow
+# Verificar EF Tools
+$efVersion = dotnet ef --version 2>$null
+if (-not $efVersion) {
+    Write-Host "   Instalando EF Tools..." -ForegroundColor Cyan
     dotnet tool install --global dotnet-ef > $null 2>&1
-    Write-Host "   ✅ EF Tools instalado" -ForegroundColor Green
 }
 
-# ETAPA 6: Aplicar migrations
-Write-Host "`n📊 ETAPA 6: Aplicando migrations..." -ForegroundColor Yellow
+Push-Location "ControleArquivosGEADI.API"
 try {
-    Push-Location "ControleArquivosGEADI.API"
     dotnet ef database update > $null 2>&1
-    Pop-Location
-    Write-Host "   ✅ Migrations aplicadas" -ForegroundColor Green
-} catch {
-    Pop-Location
-    Write-Host "   ❌ Erro nas migrations: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
+    Write-Host "   OK: Migrations aplicadas!" -ForegroundColor Green
 }
+catch {
+    Write-Host "   AVISO: Erro nas migrations - continuando..." -ForegroundColor Yellow
+}
+Pop-Location
 
-# ETAPA 7: Iniciar API local
-Write-Host "`n🚀 ETAPA 7: Iniciando API local..." -ForegroundColor Yellow
-Write-Host "   🔄 Compilando e iniciando aplicação..." -ForegroundColor Cyan
+# ETAPA 8: Iniciar API local
+Write-Host "`nETAPA 8: Iniciando API local..." -ForegroundColor Yellow
+Write-Host "   Iniciando API em background..." -ForegroundColor Cyan
 
 # Iniciar API em background
 $apiJob = Start-Job -ScriptBlock {
@@ -139,24 +119,22 @@ $apiJob = Start-Job -ScriptBlock {
     Pop-Location
 }
 
-Write-Host "   ✅ API iniciando em background (Job ID: $($apiJob.Id))" -ForegroundColor Green
+Write-Host "   OK: API iniciando (Job ID: $($apiJob.Id))" -ForegroundColor Green
 
-# ETAPA 8: Aguardar API responder
-Write-Host "`n🧪 ETAPA 8: Testando aplicação..." -ForegroundColor Yellow
-Write-Host "   ⏳ Aguardando API responder (max 30s)..." -ForegroundColor Cyan
-
-$apiReady = $false
+# ETAPA 9: Testar API
+Write-Host "`nETAPA 9: Testando API..." -ForegroundColor Yellow
 $apiTimeout = 30
 $apiElapsed = 0
+$apiReady = $false
 
 while ($apiElapsed -lt $apiTimeout -and -not $apiReady) {
-    Start-Sleep 3
-    $apiElapsed += 3
+    Start-Sleep 5
+    $apiElapsed += 5
     
     try {
         $response = Invoke-RestMethod -Uri "http://localhost:8080/arquivos" -Method GET -TimeoutSec 5
         $apiReady = $true
-        Write-Host "   ✅ API respondendo em $apiElapsed segundos!" -ForegroundColor Green
+        Write-Host "   OK: API respondendo em $apiElapsed segundos!" -ForegroundColor Green
     }
     catch {
         Write-Host "." -NoNewline -ForegroundColor Gray
@@ -164,26 +142,23 @@ while ($apiElapsed -lt $apiTimeout -and -not $apiReady) {
 }
 
 if (-not $apiReady) {
-    Write-Host "`n   ⚠️  API ainda inicializando... aguarde alguns segundos" -ForegroundColor Yellow
+    Write-Host "`n   AVISO: API ainda inicializando..." -ForegroundColor Yellow
 }
 
-# ETAPA 9: Abrir Swagger
-Write-Host "`n📖 ETAPA 9: Abrindo documentação..." -ForegroundColor Yellow
-try {
-    Start-Process "http://localhost:8080/swagger"
-    Write-Host "   ✅ Swagger aberto no navegador" -ForegroundColor Green
-} catch {
-    Write-Host "   📋 Acesse manualmente: http://localhost:8080/swagger" -ForegroundColor Cyan
-}
-
-Pop-Location
+# ETAPA 10: Abrir Swagger
+Write-Host "`nETAPA 10: Abrindo Swagger..." -ForegroundColor Yellow
+Start-Process "http://localhost:8080/swagger"
 
 Write-Host "`n=======================================================" -ForegroundColor Green
-Write-Host "🎉 APLICAÇÃO HÍBRIDA INICIALIZADA!" -ForegroundColor Green
+Write-Host "APLICACAO HIBRIDA INICIALIZADA!" -ForegroundColor Green
 Write-Host "=======================================================" -ForegroundColor Green
-Write-Host "🌐 API (.NET): http://localhost:8080" -ForegroundColor Cyan
-Write-Host "📖 Swagger: http://localhost:8080/swagger" -ForegroundColor Cyan
-Write-Host "🗄️ SQL Server (Docker): localhost:1433" -ForegroundColor Cyan
-Write-Host "🔧 Debug: API rodando local com hot reload" -ForegroundColor Cyan
-Write-Host "`n💡 Para parar a API: Get-Job | Stop-Job" -ForegroundColor Yellow
+Write-Host "API (.NET local): http://localhost:8080" -ForegroundColor Cyan
+Write-Host "Swagger: http://localhost:8080/swagger" -ForegroundColor Cyan
+Write-Host "SQL Server (Docker): localhost:1433 (sa/Ge@di2024)" -ForegroundColor Cyan
+Write-Host "`nPara parar API: Get-Job | Stop-Job" -ForegroundColor Yellow
+Write-Host "Para parar DB: docker-compose down" -ForegroundColor Yellow
+Write-Host "Para logs DB: docker-compose logs -f sqlserver" -ForegroundColor Yellow
 Write-Host "=======================================================" -ForegroundColor Green
+
+# Voltar para pasta original
+Pop-Location
