@@ -4,6 +4,9 @@ Write-Host "=== Start API .NET + DB Server GEADI ===" -ForegroundColor Green
 # Garantir que estamos na pasta raiz do projeto
 Push-Location "$PSScriptRoot\.."
 
+# Carregar funcoes utilitarias
+. "$PSScriptRoot\env-utils.ps1"
+
 # ETAPA 1: Verificar .NET (obrigatorio)
 Write-Host "ETAPA 1: Verificando .NET..." -ForegroundColor Yellow
 $dotnetVersion = dotnet --version 2>$null
@@ -33,7 +36,13 @@ if (Test-Path $appsettingsPath) {
     $appsettings = Get-Content $appsettingsPath | ConvertFrom-Json
     $connectionString = $appsettings.ConnectionStrings.DefaultConnection
     
-    if ($connectionString -and $connectionString -ne "Server=localhost,1433;Database=DBGEADI;User Id=sa;Password=Ge@di2024;TrustServerCertificate=True;") {
+    # Montar string de conexao padrao para comparacao
+    $defaultUser = Get-EnvVar "DB_USER" "sa"
+    $defaultPassword = Get-EnvVar "DB_PASSWORD" "Ge@di2024"
+    $defaultDatabase = Get-EnvVar "DB_NAME" "DBGEADI"
+    $defaultConnectionString = "Server=localhost,1433;Database=$defaultDatabase;User Id=$defaultUser;Password=$defaultPassword;TrustServerCertificate=True;"
+    
+    if ($connectionString -and $connectionString -ne $defaultConnectionString) {
         Write-Host "   OK: String de conexao customizada detectada" -ForegroundColor Green
         $serverInfo = ($connectionString -split ';')[0] -replace 'Server=',''
         Write-Host "   Servidor: $serverInfo" -ForegroundColor Cyan

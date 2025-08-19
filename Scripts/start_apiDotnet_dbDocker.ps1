@@ -4,6 +4,9 @@ Write-Host "=== Start API .NET + DB Docker GEADI ===" -ForegroundColor Green
 # Garantir que estamos na pasta raiz do projeto
 Push-Location "$PSScriptRoot\.."
 
+# Carregar funcoes utilitarias
+. "$PSScriptRoot\env-utils.ps1"
+
 # ETAPA 1: Verificar Docker
 Write-Host "ETAPA 1: Verificando Docker..." -ForegroundColor Yellow
 $dockerVersion = docker --version 2>$null
@@ -52,7 +55,7 @@ while ($elapsed -lt $timeout -and -not $ready) {
     
     try {
         $connection = New-Object System.Data.SqlClient.SqlConnection
-        $connection.ConnectionString = "Server=localhost,1433;Database=master;User Id=sa;Password=Ge@di2024;TrustServerCertificate=True;Connect Timeout=5;"
+        $connection.ConnectionString = Get-ConnectionString -Server "localhost,1433" -Database "master" -Timeout 5
         $connection.Open()
         $connection.Close()
         $ready = $true
@@ -73,7 +76,7 @@ if (-not $ready) {
 Write-Host "`nETAPA 6: Criando banco DBGEADI..." -ForegroundColor Yellow
 try {
     $connection = New-Object System.Data.SqlClient.SqlConnection
-    $connection.ConnectionString = "Server=localhost,1433;Database=master;User Id=sa;Password=Ge@di2024;TrustServerCertificate=True;"
+    $connection.ConnectionString = Get-ConnectionString -Server "localhost,1433" -Database "master"
     $connection.Open()
     
     $command = $connection.CreateCommand()
@@ -154,7 +157,7 @@ Write-Host "APLICACAO HIBRIDA INICIALIZADA!" -ForegroundColor Green
 Write-Host "=======================================================" -ForegroundColor Green
 Write-Host "API (.NET local): http://localhost:8080" -ForegroundColor Cyan
 Write-Host "Swagger: http://localhost:8080/swagger" -ForegroundColor Cyan
-Write-Host "SQL Server (Docker): localhost:1433 (sa/Ge@di2024)" -ForegroundColor Cyan
+Write-Host "SQL Server (Docker): localhost:1433 ($(Get-EnvVar 'DB_USER')/***)" -ForegroundColor Cyan
 Write-Host "`nPara parar API: Get-Job | Stop-Job" -ForegroundColor Yellow
 Write-Host "Para parar DB: docker-compose down" -ForegroundColor Yellow
 Write-Host "Para logs DB: docker-compose logs -f sqlserver" -ForegroundColor Yellow
